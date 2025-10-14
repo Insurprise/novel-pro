@@ -1,0 +1,16 @@
+# Cloudflare Pages 项目的名称
+name = "novel-pro"
+
+# 告诉 wrangler 前端静态文件在哪个文件夹
+pages_build_output_dir = "public"
+
+# 兼容性日期，确保 Worker 运行环境稳定
+compatibility_date = "2023-10-30"
+
+# D1 数据库自动绑定配置
+# 这会让 wrangler 在部署时自动完成我们在网站上手动绑定的操作
+[[d1_databases]]
+binding = "DB" # 这是在代码 (env.DB) 中使用的变量名，保持不变
+database_name = "novel" # 你在 Cloudflare 上创建的数据库的名称
+database_id = "d6d63c5f-01f6-4f6f-8950-2591f3b02b43" # 你的数据库的唯一 ID
+

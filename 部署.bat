@@ -1,0 +1,3 @@
+wrangler pages deploy .
+
+

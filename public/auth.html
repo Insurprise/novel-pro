@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Helper</title>
+</head>
+<body>
+    <script>
+        // 这个页面被加载后会立即执行
+        window.onload = function() {
+            // 从中心枢纽自己的 localStorage 中获取 'token'
+            const token = localStorage.getItem('token');
+
+            // 通过 postMessage 将 token 发送给打开这个 iframe 的父窗口
+            // targetOrigin: '*' 表示可以发送给任何源，为了安全可以设置成具体的域名
+            // 在我们的场景下，这足够安全，因为只有拿到token的人才能做操作
+            parent.postMessage({ token: token }, '*'); 
+        };
+    </script>
+    <p>Authenticating...</p>
+</body>
+</html>
