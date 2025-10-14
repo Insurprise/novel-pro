@@ -1,13 +1,16 @@
 /* =================================================================
- *  Cloudflare Worker Backend (DEBUGGING VERSION)
- *  - The "GET /api/novels" endpoint has been REMOVED as requested
- *    to isolate the deployment issue.
+ *  Cloudflare Worker Backend (FINAL & CORRECTED VERSION)
+ *  文件位置: /functions/api/[[path]].js
+ *  修复: 使用 context.params.path 替代手动URL解析，以正确匹配Cloudflare Pages的路由规则。
+ *  功能: 包含用户、导航、小说管理、阅读进度的所有API。
  * ================================================================= */
 
 // --- 1. 配置允许访问的源 ---
 const allowedOrigins = [
     "https://novel-pro.20100505.xyz",
     "https://santi.20100505.xyz",
+    // 如果您有本地开发环境，也可以加上
+    // "http://localhost:xxxx" 
 ];
 
 // --- 2. CORS & JSON 响应处理器 ---
@@ -49,17 +52,24 @@ function corsHeaders(request) {
 // --- 3. API 主入口 ---
 export async function onRequest(context) {
     const { request, env } = context;
+    // 优先处理CORS预检请求
     if (request.method === "OPTIONS") {
         return handleOptions(request);
     }
-    return await handleApiRequest(request, env);
+    // 将所有其他请求交给核心处理器
+    return await handleApiRequest(context);
 }
 
 // --- 4. 核心API逻辑 ---
-async function handleApiRequest(request, env) {
-    const url = new URL(request.url);
-    const pathParts = url.pathname.split('/').filter(p => p && p !== 'api');
-    
+async function handleApiRequest(context) {
+    const { request, env } = context;
+
+    // ★★★ 关键修正 ★★★
+    // 使用 Cloudflare Pages 提供的 context.params.path 来获取路由
+    // 对于 /api/novels/123, pathParts 将会是 ["novels", "123"]
+    const pathParts = context.params.path || [];
+
+    // --- 辅助函数 ---
     const hashPassword = async (password) => {
         const encoder = new TextEncoder();
         const data = encoder.encode(password + "a-very-strong-and-secret-salt");
@@ -78,7 +88,7 @@ async function handleApiRequest(request, env) {
     const user = getUserFromToken(request);
 
     try {
-        // --- 公共路由 ---
+        // --- 公共路由 (无需登录) ---
         if (pathParts[0] === 'register' && request.method === 'POST') {
              const { username, password } = await request.json();
              if (!username || !password) return jsonResponse({ error: '用户名和密码不能为空' }, 400, request);
@@ -103,9 +113,10 @@ async function handleApiRequest(request, env) {
             return jsonResponse({ token: sessionToken, user: userData }, 200, request);
         }
 
+        // --- 以下所有路由都需要登录 ---
         if (!user) return jsonResponse({ error: '未授权访问' }, 401, request);
         
-        // --- 导航链接管理 ---
+        // --- 导航链接管理 (管理员权限) ---
         if (pathParts[0] === 'navlinks') {
             if (request.method === 'GET') {
                 const { results } = await env.DB.prepare("SELECT id, name, subdomain FROM NavLinks ORDER BY name").all();
@@ -130,13 +141,17 @@ async function handleApiRequest(request, env) {
             }
         }
         
-        // --- 小说管理 ---
+        // --- 小说管理 (管理员权限) ---
         if (pathParts[0] === 'novels') {
              if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
             
-            // ★★★ 注意：获取小说列表(GET)的功能已从此版本中移除 ★★★
+            // GET /api/novels (获取所有小说)
+            if (request.method === 'GET') {
+                const { results } = await env.DB.prepare("SELECT id, title, author FROM Novels ORDER BY id").all();
+                return jsonResponse(results, 200, request);
+            }
             
-            // POST /api/novels
+            // POST /api/novels (添加新小说)
             if (request.method === 'POST') {
                 const { id, title, author } = await request.json();
                 if (!id || !title) return jsonResponse({ error: 'ID和标题不能为空' }, 400, request);
@@ -144,14 +159,14 @@ async function handleApiRequest(request, env) {
                     .bind(id, title, author).run();
                 return jsonResponse({ id, title, author }, 201, request);
             }
-            // DELETE /api/novels/:id
+            // DELETE /api/novels/:id (删除小说)
              if (request.method === 'DELETE' && pathParts[1]) {
                  await env.DB.prepare("DELETE FROM Novels WHERE id = ?").bind(pathParts[1]).run();
                  return new Response(null, { status: 204, headers: corsHeaders(request) });
             }
         }
 
-        // --- 用户数据路由 ---
+        // --- 用户阅读进度 (普通用户权限) ---
         if (pathParts[0] === 'progress' && pathParts[1]) {
             const novel_id = pathParts[1];
             if (request.method === 'POST') {
@@ -170,7 +185,8 @@ async function handleApiRequest(request, env) {
             }
         }
 
-        return jsonResponse({ error: `API 路由未找到: /${pathParts.join('/')}` }, 404, request);
+        // 如果以上路由都没有匹配，则返回404
+        return jsonResponse({ error: `API 路由未找到: /api/${pathParts.join('/')}` }, 404, request);
 
     } catch (e) {
         console.error(e.message, e.stack);
