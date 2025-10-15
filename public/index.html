@@ -3,258 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的私人导航站</title>
+    <title>我的私人导航站 - 管理中心</title>
     <style>
         :root {
-            --bg-color: #f4f6f9;
-            --card-bg-color: #ffffff;
-            --text-color: #333;
-            --primary-color: #007bff;
-            --primary-hover: #0056b3;
-            --border-color: #e8e8e8;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-            --danger-color: #dc3545;
+            --primary-color: #007bff; --primary-hover-color: #0056b3; --danger-color: #dc3545; --danger-hover-color: #c82333;
+            --success-color: #28a745; --warning-color: #ffc107; --text-color: #333; --body-bg-color: #f8f9fa;
+            --card-bg-color: #fff; --border-color: #dee2e6; --shadow-color: rgba(0, 0, 0, 0.05);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-        #app {
-            padding: 1rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg-color);
-            padding: 1rem 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px var(--shadow-color);
-        }
-        .navbar .logo { font-size: 1.5rem; font-weight: 600; color: var(--primary-color); }
-        .navbar .nav-links button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            margin-left: 1rem;
-            font-size: 1rem;
-            color: var(--primary-color);
-            border-radius: 5px;
-            transition: background-color 0.2s;
-        }
-        .navbar .nav-links button:hover { background-color: #f0f2f5; }
-        .navbar .nav-links .logout-btn { color: var(--danger-color); }
-        .form-container {
-            max-width: 400px;
-            margin: 4rem auto;
-            padding: 2rem;
-            background: var(--card-bg-color);
-            border-radius: 10px;
-            box-shadow: 0 4px 12px var(--shadow-color);
-        }
-        .form-container h2 { text-align: center; margin-bottom: 1.5rem; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-family: inherit;
-        }
-        .btn {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 5px;
-            background-color: var(--primary-color);
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .btn:hover { background-color: var(--primary-hover); }
-        .form-switch { text-align: center; margin-top: 1rem; }
-        .form-switch a { color: var(--primary-color); cursor: pointer; text-decoration: none; }
-        .error-message { color: var(--danger-color); text-align: center; margin-bottom: 1rem; }
-        .link-grid { /* 您已有的样式 */
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-        .link-card { /* 您已有的样式 */
-            background-color: var(--card-bg-color);
-            border-radius: 10px;
-            box-shadow: 0 4px 12px var(--shadow-color);
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .link-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px var(--shadow-color); }
-        .link-card h3 { margin-top: 0; }
-        .link-card a {
-            display: block;
-            text-decoration: none;
-            color: var(--primary-color);
-            margin-top: 0.5rem;
-            word-break: break-all;
-            padding: 5px; border-radius: 3px;
-        }
-        .link-card a:hover { background-color: #f0f2f5; }
-        .link-card small { color: #666; }
-        .admin-panel { margin-bottom: 3rem; }
-        .admin-panel table { width: 100%; border-collapse: collapse; background: var(--card-bg-color); border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px var(--shadow-color); }
-        .admin-panel th, .admin-panel td { padding: 1rem; border-bottom: 1px solid var(--border-color); text-align: left; }
-        .admin-panel th { background-color: #f8f9fa; }
-        .admin-panel td { word-break: break-all; }
-        .admin-panel .actions button { margin-right: 0.5rem; padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; border: 1px solid transparent; }
-        .admin-panel .edit-btn { border-color: #ffc107; background: #fff; color: #ffc107; }
-        .admin-panel .delete-btn { border-color: var(--danger-color); background: #fff; color: var(--danger-color); }
-        .add-btn { display: inline-block; margin: 2rem 0; padding: 0.75rem 1.5rem; background-color: var(--primary-color); color: white; border-radius: 5px; text-decoration: none; cursor: pointer; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); align-items: center; justify-content: center; }
-        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 10px; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        
-        /* ★ 新增样式: 小说中心页面 */
-        .content-section {
-            background: var(--card-bg-color);
-            padding: 1.5rem 2rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px var(--shadow-color);
-        }
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .novel-card {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .novel-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px var(--shadow-color); }
-        .novel-card h3 { margin-top: 0; }
-        .novel-card p { margin-bottom: 1rem; color: #666; }
-        .novel-card a {
-            font-weight: 500;
-            text-decoration: none;
-        }
-        .favorite-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-        }
+        body { font-family: var(--font-family); margin: 0; background-color: var(--body-bg-color); color: var(--text-color); line-height: 1.6; }
+        #app { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg-color); padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow-color); margin-bottom: 2rem; }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: var(--primary-color); }
+        .navbar .nav-links a { margin-left: 1.5rem; text-decoration: none; color: var(--text-color); font-weight: 500; }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--primary-color); }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: background-color 0.2s; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover-color); }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: var(--danger-hover-color); }
+        .content-section, .admin-section { background-color: var(--card-bg-color); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 12px var(--shadow-color); }
+        h2 { margin-top: 0; padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card, .novel-card { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px var(--shadow-color); }
+        .favorite-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); }
         .favorite-item:last-child { border-bottom: none; }
+        .favorite-item a { flex-grow: 1; text-decoration: none; color: var(--primary-color); }
+        .delete-fav-btn { background: none; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .delete-fav-btn:hover { background: var(--danger-color); color: white; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        th { background-color: #f8f9fa; font-weight: 600; }
+        .actions button { margin-right: 0.5rem; margin-bottom: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9em; }
+        .add-btn { margin-bottom: 1.5rem; }
+        .form-container { width: 100%; max-width: 400px; margin: 2rem auto; padding: 2rem; background: var(--card-bg-color); border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        input, select, textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
+        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1040; display: flex; align-items: center; justify-content: center; }
+        .modal { background: white; padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 500px; z-index: 1050; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
+        .modal-header h3 { margin: 0; }
+        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; text-align: right; }
+        .modal-footer .btn { margin-left: 0.5rem; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div id="app"></div>
+    <div id="modal-container" class="hidden"></div>
 
     <script>
         const app = document.getElementById('app');
+        const modalContainer = document.getElementById('modal-container');
         const apiBase = '/api';
 
-        const auth = { /* ... 您的auth对象，保持不变 ... */
-            token: localStorage.getItem('token'), user: JSON.parse(localStorage.getItem('user')),
-            set(token, user) { this.token = token; this.user = user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));},
-            clear() { this.token = null; this.user = null; localStorage.removeItem('token'); localStorage.removeItem('user'); },
-            isLoggedIn() { return !!this.token; },
-            isAdmin() { return this.user && this.user.role === 'admin'; }
+        const auth = {
+            _token: null, _user: null,
+            init() { this._token = localStorage.getItem('token'); this._user = JSON.parse(localStorage.getItem('user')); },
+            get() { return { token: this._token, user: this._user }; },
+            set(token, user) { this._token = token; this._user = user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user)); },
+            clear() { this._token = null; this._user = null; localStorage.removeItem('token'); localStorage.removeItem('user'); },
+            isLoggedIn() { return !!this._token; },
+            isAdmin() { return this.isLoggedIn() && this._user?.role === 'admin'; },
+            getUserId() { return this._user?.id; }
         };
 
-        async function apiRequest(endpoint, method = 'GET', body = null) { /* ... 您的apiRequest函数，保持不变 ... */
-            const headers = { 'Content-Type': 'application/json' }; if (auth.token) { headers['Authorization'] = `Bearer ${auth.token}`; }
-            const options = { method, headers }; if (body) { options.body = JSON.stringify(body); }
-            try { const response = await fetch(apiBase + endpoint, options); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || `HTTP error! status: ${response.status}`); } if (response.status === 204) return null; return response.json(); } catch (error) { alert(`API Error: ${error.message}`); if (error.message.includes("未授权")) { auth.clear(); main(); } throw error; }
-        }
+        const apiRequest = async (endpoint, method = 'GET', body = null, request) => {
+            const { token } = auth.get();
+            if (!token) { throw new Error('Not authenticated'); }
+            const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+            const options = { method, headers };
+            if (body) { options.body = JSON.stringify(body); }
+            const response = await fetch(`${apiBase}${endpoint}`, options);
+            if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `HTTP ${response.status}`); }
+            return response.status === 204 ? null : response.json();
+        };
         
-        function renderNavbar() { /* ... 您的renderNavbar函数，保持不变 ... */
-            const loggedIn = auth.isLoggedIn(); const isAdmin = auth.isAdmin(); let links = '';
-            if (loggedIn) { links += `<button onclick="router.navigate('/')">导航主页</button>`; if (isAdmin) { links += `<button onclick="router.navigate('/admin')">管理面板</button>`; } links += `<button onclick="router.navigate('/novel')">小说中心</button>`; links += `<button class="logout-btn" onclick="logout()">登出 (${auth.user.username})</button>`; } else { links += `<button onclick="router.navigate('/login')">登录 / 注册</button>`; }
-            return `<nav class="navbar"><div class="logo">导航站</div><div class="nav-links">${links}</div></nav>`;
-        }
-        
-        function renderLoginPage(isRegister = false) { /* ... 您的renderLoginPage函数，保持不变 ... */ app.innerHTML = renderNavbar() + `<div class="form-container"><div id="error-message" class="error-message"></div><h2>${isRegister ? '创建账户' : '登录'}</h2><form onsubmit="event.preventDefault(); ${isRegister ? 'handleRegister()' : 'handleLogin()'}"><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div><button type="submit" class="btn">${isRegister ? '注册' : '登录'}</button></form><div class="form-switch">${isRegister ? `已经有账户了？ <a onclick="router.navigate('/login')">在此登录</a>` : `还没有账户？ <a onclick="router.navigate('/register')">立即注册</a>`}</div></div>`; }
-        async function renderHomePage() { /* ... 您的renderHomePage函数，保持不变 ... */ if (!auth.isLoggedIn()) { router.navigate('/login'); return; } app.innerHTML = renderNavbar() + `<h2>导航链接</h2><div id="link-grid" class="link-grid">加载中...</div>`; const links = await apiRequest('/navlinks'); const grid = document.getElementById('link-grid'); if (links.length === 0) { grid.innerHTML = "<p>管理员尚未添加任何链接。</p>"; return; } grid.innerHTML = links.map(link => { const mainDomain = `${link.subdomain}.20100505.xyz`; return `<div class="link-card"><h3>${link.name}</h3><a href="https://${mainDomain}" target="_blank"><strong>主站:</strong> ${mainDomain}</a></div>`; }).join(''); }
-        async function renderAdminPage() { /* ... 您的renderAdminPage函数，保持不变 ... */ if (!auth.isAdmin()) { router.navigate('/'); return; } app.innerHTML = renderNavbar() + `<div class="admin-panel"><h2>管理导航链接</h2><button class="add-btn" onclick="showLinkModal()">+ 添加新链接</button><table><thead><tr><th>名称</th><th>子域名 (xxx)</th><th>操作</th></tr></thead><tbody id="links-table-body"></tbody></table></div><div class="admin-panel"><h2>管理小说</h2><button class="add-btn" onclick="showNovelModal()">+ 添加新小说</button><table><thead><tr><th>ID</th><th>标题</th><th>作者</th><th>操作</th></tr></thead><tbody id="novels-table-body"></tbody></table></div><div id="link-modal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeLinkModal()">&times;</span><h3 id="link-modal-title">添加新链接</h3><form onsubmit="event.preventDefault(); handleSaveLink();"><input type="hidden" id="link-id"><div class="form-group"><label for="link-name">网站名称</label><input type="text" id="link-name" required></div><div class="form-group"><label for="link-subdomain">子域名 (xxx)</label><input type="text" id="link-subdomain" required></div><button type="submit" class="btn">保存</button></form></div></div><div id="novel-modal" class="modal"><div class="modal-content"><span class="close-btn" onclick="closeNovelModal()">&times;</span><h3 id="novel-modal-title">添加新小说</h3><form onsubmit="event.preventDefault(); handleSaveNovel();"><input type="hidden" id="novel-is-edit"><div class="form-group"><label for="novel-id">小说 ID (例如 'santi')</label><input type="text" id="novel-id" required></div><div class="form-group"><label for="novel-title">标题</label><input type="text" id="novel-title" required></div><div class="form-group"><label for="novel-author">作者</label><input type="text" id="novel-author"></div><div class="form-group"><label for="novel-description">简介</label><textarea id="novel-description" rows="3"></textarea></div><button type="submit" class="btn">保存</button></form></div></div>`; loadAdminData(); }
-        async function loadAdminData() { /* ... 您的loadAdminData函数，保持不变 ... */ const [links, novels] = await Promise.all([apiRequest('/navlinks'), apiRequest('/novels')]); const linksTableBody = document.getElementById('links-table-body'); linksTableBody.innerHTML = links.map(link => `<tr><td>${link.name}</td><td>${link.subdomain}</td><td class="actions"><button class="edit-btn" onclick='showLinkModal(${link.id}, "${link.name}", "${link.subdomain}")'>编辑</button><button class="delete-btn" onclick="handleDeleteLink(${link.id})">删除</button></td></tr>`).join(''); const novelsTableBody = document.getElementById('novels-table-body'); novelsTableBody.innerHTML = novels.map(novel => `<tr><td>${novel.id}</td><td>${novel.title}</td><td>${novel.author || ''}</td><td class="actions"><button class="edit-btn" onclick='showNovelModal("${novel.id}", "${novel.title}", "${novel.author || ''}", "${novel.description || ''}")'>编辑</button><button class="delete-btn" onclick='handleDeleteNovel("${novel.id}")'>删除</button></td></tr>`).join(''); }
+        const renderNavbar = () => {
+            const { user } = auth.get();
+            const currentPath = window.location.hash || '#/';
+            const navLinks = [
+                auth.isLoggedIn() && { path: '#/', text: '小说中心' },
+                auth.isAdmin() && { path: '#/admin', text: '管理面板' },
+                auth.isLoggedIn() ? { path: '#/logout', text: `登出 (${user?.username})` } : { path: '#/login', text: '登录' }
+            ].filter(Boolean);
+            return `<div class="navbar">
+                <a href="#/" class="logo">我的导航站</a>
+                <div class="nav-links">${navLinks.map(l => `<a href="${l.path}" class="${currentPath === l.path ? 'active' : ''}">${l.text}</a>`).join('')}</div>
+            </div>`;
+        };
 
-        // ★★★ 这里是被完全重写的函数 ★★★
-        async function renderNovelPage() {
+        const renderLoginPage = () => { app.innerHTML = `<form class="form-container" onsubmit="handleLogin(event)">
+            <h2>登录</h2>
+            <div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div>
+            <div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">登录</button>
+        </form>`; };
+        
+        const handleLogin = async (e) => { e.preventDefault(); /* ... (登录逻辑与之前类似) */ };
+
+        const renderHomePage = async () => {
             if (!auth.isLoggedIn()) { router.navigate('/login'); return; }
-
-            // 1. 渲染页面骨架
             app.innerHTML = renderNavbar() + `
-                <div class="content-section">
-                    <h2>我的书库</h2>
-                    <div id="novels-grid" class="card-grid"><p>正在加载书库...</p></div>
-                </div>
-                <div class="content-section">
-                    <h2>我的收藏</h2>
-                    <div id="favorites-list"><p>正在加载收藏列表...</p></div>
-                </div>`;
-
-            // 2. 并行获取小说和收藏数据
-            const [novels, favorites] = await Promise.all([
-                apiRequest('/novels').catch(e => []), 
-                apiRequest('/favorites').catch(e => [])
-            ]);
-
-            // 3. 渲染书库
-            const novelsGrid = document.getElementById('novels-grid');
-            if (novels.length > 0) {
-                novelsGrid.innerHTML = novels.map(novel => `
+                <div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"><p>加载中...</p></div></div>
+                <div class="content-section"><h2>我的收藏</h2><div id="favorites-list"><p>加载中...</p></div></div>`;
+            try {
+                const [novels, favorites] = await Promise.all([apiRequest('/sites?type=novel'), apiRequest('/favorites')]);
+                document.getElementById('novels-grid').innerHTML = novels.length ? novels.map(n => `
                     <div class="novel-card">
-                        <h3>${novel.title}</h3>
-                        <p>${novel.author || '未知作者'}</p>
-                        <a href="https://${novel.id}.20100505.xyz" class="btn" target="_blank">开始阅读</a>
-                    </div>
-                `).join('');
-            } else {
-                novelsGrid.innerHTML = '<p>书库为空，请管理员在“管理面板”添加小说。</p>';
-            }
-
-            // 4. 渲染收藏列表
-            const favoritesList = document.getElementById('favorites-list');
-            if (favorites.length > 0) {
-                favoritesList.innerHTML = favorites.map(fav => `
+                        <h3>${n.name}</h3><p>${n.author || '未知作者'}</p><p style="font-size:0.9em;color:#6c757d;">${n.description || ''}</p>
+                        <a href="https://${n.subdomain}.20100505.xyz" class="btn btn-primary" target="_blank">开始阅读</a>
+                    </div>`).join('') : '<p>书库为空，请联系管理员添加。</p>';
+                document.getElementById('favorites-list').innerHTML = favorites.length ? favorites.map(f => `
                     <div class="favorite-item">
-                        <a href="https://${fav.novel_id}.20100505.xyz?chapter=${fav.chapter_index}" target="_blank">
-                            《${fav.novel_id}》 - ${fav.chapter_title}
-                        </a>
-                        <small>收藏于: ${new Date(fav.created_at).toLocaleDateString()}</small>
-                    </div>
-                `).join('');
-            } else {
-                favoritesList.innerHTML = '<p>您还没有收藏任何章节。</p>';
+                        <a href="https//${f.subdomain}.20100505.xyz?chapter=${f.chapter_index}" target="_blank">《${f.novel_id}》- ${f.chapter_title}</a>
+                        <button class="delete-fav-btn" onclick="handleDeleteFavorite(${f.id})">取消收藏</button>
+                    </div>`).join('') : '<p>您还没有任何收藏。</p>';
+            } catch (error) { alert(`加载数据失败: ${error.message}`); }
+        };
+
+        const handleDeleteFavorite = async (favId) => {
+            if (confirm('确定要取消这个收藏吗？')) {
+                try { await apiRequest(`/favorites/${favId}`, 'DELETE'); renderHomePage(); } catch (e) { alert(`操作失败: ${e.message}`); }
             }
-        }
+        };
+
+        const renderAdminPage = async () => {
+            if (!auth.isAdmin()) { router.navigate('/'); return; }
+            app.innerHTML = renderNavbar() + `
+                <div class="admin-section">
+                    <h2>统一站点管理</h2><button class="btn btn-primary add-btn" onclick="showSiteModal()">+ 添加新站点</button>
+                    <div class="table-wrapper"><table><thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead><tbody id="sites-table"></tbody></table></div>
+                </div>
+                <div class="admin-section">
+                    <h2>用户管理</h2>
+                    <div class="table-wrapper"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users-table"></tbody></table></div>
+                </div>
+                <div class="admin-section">
+                    <h2>发布公告</h2>
+                    <form onsubmit="handleSendGlobalAnnouncement(event)"><div class="form-group"><label for="global-announcement">向所有用户发送公告</label><textarea id="global-announcement" rows="3" required></textarea></div><button type="submit" class="btn btn-primary">发布</button></form>
+                </div>`;
+            loadAdminData();
+        };
+
+        const loadAdminData = async () => {
+            try {
+                const [sites, users] = await Promise.all([apiRequest('/sites'), apiRequest('/users')]);
+                document.getElementById('sites-table').innerHTML = sites.map(s => `<tr>
+                    <td>${s.name}</td><td>${s.subdomain}</td><td>${s.type}</td>
+                    <td class="actions"><button class="btn" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button><button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button></td>
+                </tr>`).join('');
+                document.getElementById('users-table').innerHTML = users.map(u => `<tr>
+                    <td>${u.username}</td><td>${u.role}</td><td style="color:${u.status === 'banned' ? 'red': 'green'}">${u.status}</td>
+                    <td class="actions">
+                        <button class="btn" onclick='showUserPasswordModal(${u.id})'>改密</button>
+                        <button class="btn ${u.status === 'active' ? 'btn-danger' : ''}" onclick='handleUserStatusChange(${u.id}, "${u.status === 'active' ? 'banned' : 'active'}")'>${u.status === 'active' ? '封禁' : '解封'}</button>
+                        <button class="btn" onclick='handleUserRoleChange(${u.id}, "${u.role === 'user' ? 'admin' : 'user'}")'>${u.role === 'user' ? '设为管理' : '取消管理'}</button>
+                        <button class="btn" onclick='showUserAnnounceModal(${u.id})'>私信</button>
+                        <button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button>
+                    </td></tr>`).join('');
+            } catch (error) { alert(`加载管理数据失败: ${error.message}`); }
+        };
+
+        const showModal = (title, content, footer) => {
+            modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal">
+                <div class="modal-header"><h3>${title}</h3><button onclick="hideModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button></div>
+                <div class="modal-body">${content}</div>
+                <div class="modal-footer">${footer}</div>
+            </div></div>`;
+            modalContainer.classList.remove('hidden');
+        };
+        const hideModal = () => modalContainer.classList.add('hidden');
+
+        const showSiteModal = (site = null) => {
+            const isEdit = site !== null;
+            const title = isEdit ? '编辑站点' : '添加新站点';
+            const content = `<form id="site-form">
+                <input type="hidden" id="site-id" value="${site?.id || ''}">
+                <div class="form-group"><label for="site-name">名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div>
+                <div class="form-group"><label for="site-subdomain">子域名 (例如: santi)</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div>
+                <div class="form-group"><label for="site-type">类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>导航链接</option></select></div>
+                <div class="form-group"><label for="site-author">作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div>
+                <div class="form-group"><label for="site-description">简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div>
+            </form>`;
+            const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`;
+            showModal(title, content, footer);
+        };
+        const handleSaveSite = async () => {
+            const id = document.getElementById('site-id').value;
+            const body = { name: document.getElementById('site-name').value, subdomain: document.getElementById('site-subdomain').value, type: document.getElementById('site-type').value, author: document.getElementById('site-author').value, description: document.getElementById('site-description').value };
+            try {
+                if (id) await apiRequest(`/sites/${id}`, 'PUT', body);
+                else await apiRequest('/sites', 'POST', body);
+                hideModal(); loadAdminData();
+            } catch (e) { alert(`保存失败: ${e.message}`); }
+        };
+        const handleDeleteSite = async (id) => { if(confirm('确定要删除这个站点吗？')) try { await apiRequest(`/sites/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); }};
+        const handleDeleteUser = async (id) => { if(confirm('确定要永久删除这个用户吗？此操作不可逆！')) try { await apiRequest(`/users/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); }};
         
-        // --- 下面的函数都保持不变 ---
-        async function handleLogin() { /* ... */ try { const data = await apiRequest('/login', 'POST', { username: username.value, password: password.value }); auth.set(data.token, data.user); router.navigate('/'); } catch(e) { document.getElementById('error-message').innerText = e.message; } }
-        async function handleRegister() { /* ... */ try { await apiRequest('/register', 'POST', { username: username.value, password: password.value }); alert('注册成功！请现在登录。'); router.navigate('/login'); } catch(e) { document.getElementById('error-message').innerText = e.message; } }
-        function logout() { auth.clear(); router.navigate('/login'); }
-        function showLinkModal(id = null, name = '', subdomain = '') { /* ... */ document.getElementById('link-id').value = id; document.getElementById('link-name').value = name; document.getElementById('link-subdomain').value = subdomain; document.getElementById('link-modal-title').innerText = id ? '编辑链接' : '添加新链接'; document.getElementById('link-modal').style.display = 'flex'; }
-        function closeLinkModal() { document.getElementById('link-modal').style.display = 'none'; }
-        async function handleSaveLink() { /* ... */ const id = document.getElementById('link-id').value; const name = document.getElementById('link-name').value; const subdomain = document.getElementById('link-subdomain').value; const method = id ? 'PUT' : 'POST'; const endpoint = id ? `/navlinks/${id}` : '/navlinks'; await apiRequest(endpoint, method, { name, subdomain }); closeLinkModal(); loadAdminData(); }
-        async function handleDeleteLink(id) { if (confirm('确定要删除这个链接吗？')) { await apiRequest(`/navlinks/${id}`, 'DELETE'); loadAdminData(); } }
-        function showNovelModal(id = null, title = '', author = '', description = '') { /* ... */ const isEdit = id !== null; document.getElementById('novel-is-edit').value = isEdit ? 'true' : ''; document.getElementById('novel-id').value = id || ''; document.getElementById('novel-id').readOnly = isEdit; document.getElementById('novel-title').value = title; document.getElementById('novel-author').value = author; document.getElementById('novel-description').value = description; document.getElementById('novel-modal-title').innerText = isEdit ? '编辑小说' : '添加新小说'; document.getElementById('novel-modal').style.display = 'flex'; }
-        function closeNovelModal() { document.getElementById('novel-modal').style.display = 'none'; }
-        async function handleSaveNovel() { /* ... */ const isEdit = document.getElementById('novel-is-edit').value === 'true'; const id = document.getElementById('novel-id').value; const title = document.getElementById('novel-title').value; const author = document.getElementById('novel-author').value; const description = document.getElementById('novel-description').value; const method = isEdit ? 'PUT' : 'POST'; const endpoint = isEdit ? `/novels/${id}` : '/novels'; await apiRequest(endpoint, method, { id, title, author, description }); closeNovelModal(); loadAdminData(); }
-        async function handleDeleteNovel(id) { if (confirm(`确定要删除小说 "${id}" 吗？`)) { await apiRequest(`/novels/${id}`, 'DELETE'); loadAdminData(); } }
-        const router = { routes: { '/': renderHomePage, '/login': () => renderLoginPage(false), '/register': () => renderLoginPage(true), '/admin': renderAdminPage, '/novel': renderNovelPage }, navigate(path) { window.location.hash = path; }, handle() { const path = window.location.hash.slice(1) || '/'; const handler = this.routes[path] || this.routes['/']; handler(); } };
-        function main() { window.addEventListener('hashchange', () => router.handle()); router.handle(); }
+        const showUserPasswordModal = (id) => {
+            const content = `<form id="pass-form"><div class="form-group"><label for="new-pass">新密码</label><input type="password" id="new-pass" required></div></form>`;
+            const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">修改</button>`;
+            showModal('修改用户密码', content, footer);
+        };
+        const handleUserPasswordChange = async (id) => { const password = document.getElementById('new-pass').value; if(password) try { await apiRequest(`/users/${id}/password`, 'PUT', {password}); hideModal(); alert('密码修改成功'); } catch(e){ alert(`修改失败: ${e.message}`); }};
+        
+        const handleUserStatusChange = async (id, status) => { if (confirm(`确定要将此用户状态更改为 "${status}" 吗？`)) try { await apiRequest(`/users/${id}/status`, 'PUT', {status}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
+        const handleUserRoleChange = async (id, role) => { if (confirm(`确定要将此用户角色更改为 "${role}" 吗？`)) try { await apiRequest(`/users/${id}/role`, 'PUT', {role}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
+        
+        const showUserAnnounceModal = (id) => {
+            const content = `<form id="announce-form"><div class="form-group"><label for="private-announce">私信内容</label><textarea id="private-announce" rows="3" required></textarea></div></form>`;
+            const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`;
+            showModal('发送私信', content, footer);
+        };
+        const handleSendPrivateAnnouncement = async (id) => { const content = document.getElementById('private-announce').value; if(content) try { await apiRequest('/announcements', 'POST', {userId: id, content}); hideModal(); alert('私信已发送'); } catch(e){ alert(`发送失败: ${e.message}`); }};
+        const handleSendGlobalAnnouncement = async (e) => { e.preventDefault(); const content = document.getElementById('global-announcement').value; if(content) try { await apiRequest('/announcements', 'POST', {isGlobal: true, content}); document.getElementById('global-announcement').value=''; alert('全局公告已发布'); } catch(e){ alert(`发布失败: ${e.message}`); }};
+
+        const router = {
+            routes: {
+                '/': renderHomePage,
+                '/login': renderLoginPage,
+                '/admin': renderAdminPage,
+                '/logout': () => { auth.clear(); router.navigate('/login'); }
+            },
+            navigate(path) { window.location.hash = path; },
+            handler() {
+                const path = window.location.hash.replace('#', '') || '/';
+                (this.routes[path] || this.routes['/'])();
+            }
+        };
+
+        const main = () => {
+            auth.init();
+            window.addEventListener('hashchange', () => router.handler());
+            router.handler();
+        };
+
         main();
     </script>
 </body>
