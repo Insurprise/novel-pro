@@ -1,14 +1,16 @@
 /* =================================================================
- *  Cloudflare Worker Backend (v3.0.1 - Final & Complete)
- *  功能: 统一站点管理, 高级用户控制, 公告系统, 动态链接支持
+ *  Cloudflare Worker Backend (v3.0.3 - Ultimate & Complete)
+ *  - Includes all features without any omissions.
+ *  - Fixes 'unfavorite' action from reader pages.
  * ================================================================= */
 
 const ROOT_ADMIN_ID = 1; // 站长ID，永不可被修改
 
 // --- 辅助函数 ---
 const handleOptions = (request) => {
+    const origin = request.headers.get("Origin") || "*";
     const headers = {
-        "Access-Control-Allow-Origin": request.headers.get("Origin") || "*",
+        "Access-Control-Allow-Origin": origin,
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Max-Age": "86400",
@@ -39,7 +41,7 @@ function getUserFromToken(request) {
         const token = authHeader.split(' ')[1];
         return JSON.parse(atob(token));
     } catch (e) {
-        return null; // Token is invalid
+        return null;
     }
 }
 
@@ -56,7 +58,6 @@ async function handleApiRequest(context) {
     const { request, env, params } = context;
     const url = new URL(request.url);
     const pathParts = params.path || [];
-    const user = getUserFromToken(request);
 
     try {
         // --- 公共路由 ---
@@ -69,10 +70,10 @@ async function handleApiRequest(context) {
             const token = btoa(JSON.stringify({ id: userDb.id, username: userDb.username, role: userDb.role }));
             return jsonResponse({ token, user: { id: userDb.id, username: userDb.username, role: userDb.role } }, 200, request);
         }
-        if (pathParts[0] === 'register') { /* 注册逻辑可以按需添加 */ }
 
+        const user = getUserFromToken(request);
         if (!user) return jsonResponse({ error: '未授权或Token无效' }, 401, request);
-        
+
         // --- ★ 统一站点管理 ★ ---
         if (pathParts[0] === 'sites') {
             if (request.method === 'GET') {
@@ -111,28 +112,60 @@ async function handleApiRequest(context) {
             if (request.method === 'POST') { const { userId, content, isGlobal } = await request.json(); const targetId = isGlobal ? null : userId; await env.DB.prepare("INSERT INTO Announcements (user_id, content) VALUES (?, ?)").bind(targetId, content).run(); return jsonResponse({ message: '公告已发送' }, 201, request); }
         }
 
-        // --- ★ 动态链接收藏API ★ ---
+        // --- ★ 动态链接收藏API (兼容性升级) ★ ---
         if (pathParts[0] === 'favorites') {
             const userId = user.id;
             if (request.method === 'GET') {
-                const { results } = await env.DB.prepare(`SELECT f.id, f.novel_id, s.name as novel_name, s.subdomain, f.chapter_index, f.chapter_title, f.created_at FROM FavoriteChapters f JOIN Sites s ON f.novel_id = s.name WHERE f.user_id = ? AND s.type = 'novel' ORDER BY f.novel_id, f.chapter_index`).bind(userId).all();
+                const { results } = await env.DB.prepare(`
+                    SELECT f.id, f.novel_id, s.subdomain, f.chapter_index, f.chapter_title 
+                    FROM FavoriteChapters f 
+                    JOIN Sites s ON f.novel_id = s.name 
+                    WHERE f.user_id = ? AND s.type = 'novel' 
+                    ORDER BY f.novel_id, f.chapter_index
+                `).bind(userId).all();
                 return jsonResponse(results, 200, request);
             }
-            if (request.method === 'POST') { const { novel_id, chapter_id, chapter_index, chapter_title } = await request.json(); await env.DB.prepare("INSERT INTO FavoriteChapters (user_id, novel_id, chapter_id, chapter_index, chapter_title) VALUES (?, ?, ?, ?, ?)").bind(userId, novel_id, chapter_id, chapter_index, chapter_title).run(); return jsonResponse({ message: "收藏成功" }, 201, request); }
-            if (request.method === 'DELETE' && pathParts[1]) { await env.DB.prepare("DELETE FROM FavoriteChapters WHERE id = ? AND user_id = ?").bind(pathParts[1], userId).run(); return jsonResponse(null, 204, request); }
+            if (request.method === 'POST') {
+                const { novel_id, chapter_index, chapter_title } = await request.json();
+                await env.DB.prepare("INSERT INTO FavoriteChapters (user_id, novel_id, chapter_index, chapter_title) VALUES (?, ?, ?, ?)").bind(userId, novel_id, chapter_index, chapter_title).run();
+                return jsonResponse({ message: "收藏成功" }, 201, request);
+            }
+            if (request.method === 'DELETE') {
+                const idToDelete = pathParts[1];
+                if (idToDelete) {
+                    // 新版逻辑：通过收藏记录的ID删除 (来自小说中心)
+                    await env.DB.prepare("DELETE FROM FavoriteChapters WHERE id = ? AND user_id = ?").bind(idToDelete, userId).run();
+                } else {
+                    // 旧版兼容逻辑：通过小说名和章节索引删除 (来自小说阅读器)
+                    const novel_id = url.searchParams.get('novel_id');
+                    const chapter_index = url.searchParams.get('chapter_index');
+                    if (novel_id && chapter_index) {
+                        await env.DB.prepare("DELETE FROM FavoriteChapters WHERE user_id = ? AND novel_id = ? AND chapter_index = ?").bind(userId, novel_id, chapter_index).run();
+                    } else {
+                        return jsonResponse({ error: "删除收藏失败，缺少必要的参数" }, 400, request);
+                    }
+                }
+                return jsonResponse(null, 204, request);
+            }
         }
         
-        // --- 进度API ---
+        // --- ★ 进度API (完整版) ★ ---
         if (pathParts[0] === 'progress' && pathParts[1]) {
             const novel_id = pathParts[1];
-            if (request.method === 'GET') { const record = await env.DB.prepare("SELECT * FROM ReadingRecords WHERE user_id = ? AND novel_id = ?").bind(user.id, novel_id).first(); return jsonResponse(record, 200, request); }
-            if (request.method === 'POST') { const { chapter_id, position } = await request.json(); await env.DB.prepare("INSERT OR REPLACE INTO ReadingRecords (user_id, novel_id, chapter_id, position, updated_at) VALUES (?, ?, ?, ?, datetime('now'))").bind(user.id, novel_id, chapter_id, position).run(); return jsonResponse(null, 204, request); }
+            if (request.method === 'GET') {
+                const record = await env.DB.prepare("SELECT * FROM ReadingRecords WHERE user_id = ? AND novel_id = ?").bind(user.id, novel_id).first();
+                return jsonResponse(record, 200, request);
+            }
+            if (request.method === 'POST') {
+                const { chapter_id, position } = await request.json();
+                await env.DB.prepare("INSERT OR REPLACE INTO ReadingRecords (user_id, novel_id, chapter_id, position, updated_at) VALUES (?, ?, ?, ?, datetime('now'))").bind(user.id, novel_id, chapter_id, position).run();
+                return jsonResponse(null, 204, request);
+            }
         }
 
-        return jsonResponse({ error: `API路由未找到` }, 404, request);
+        return jsonResponse({ error: `API路由未找到: ${request.method} ${url.pathname}` }, 404, request);
     } catch (e) {
         console.error("API Error:", e);
-        return jsonResponse({ error: '服务器内部错误', details: e.message }, 500, request);
+        return jsonResponse({ error: '服务器内部错误', details: e.message, stack: e.stack }, 500, request);
     }
 }
-
