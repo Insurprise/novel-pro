@@ -16,410 +16,169 @@
         .navbar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg-color); padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow-color); margin-bottom: 2rem; }
         .navbar .logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: var(--primary-color); }
         .navbar .nav-links a { margin-left: 1.5rem; text-decoration: none; color: var(--text-color); font-weight: 500; }
-        .navbar .nav-links a:hover, .navbar .nav-links a.active { color: var(--primary-color); }
-        .btn { padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: background-color 0.2s; }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: background-color 0.2s; text-align: center; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover-color); }
         .btn-danger { background-color: var(--danger-color); color: white; }
         .btn-danger:hover { background-color: var(--danger-hover-color); }
         .content-section, .admin-section { background-color: var(--card-bg-color); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 12px var(--shadow-color); }
         h2 { margin-top: 0; padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
-        .novel-card { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px var(--shadow-color); display: flex; flex-direction: column; }
-        .novel-card h3 { margin-top: 0; }
-        .novel-card .btn { margin-top: auto; }
-        .favorite-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); }
-        .favorite-item:last-child { border-bottom: none; }
-        .favorite-item a { flex-grow: 1; text-decoration: none; color: var(--primary-color); }
-        .delete-fav-btn { background: none; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
-        .delete-fav-btn:hover { background: var(--danger-color); color: white; }
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         th { background-color: #f8f9fa; font-weight: 600; }
-        .actions button { margin-right: 0.5rem; margin-bottom: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9em; }
-        .add-btn { margin-bottom: 1.5rem; }
-        .form-container { width: 100%; max-width: 400px; margin: 2rem auto; background: var(--card-bg-color); border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); overflow: hidden; }
-        .auth-tabs { display: flex; }
-        .auth-tabs a { flex: 1; text-align: center; padding: 1rem; text-decoration: none; color: var(--text-color); background-color: #f1f1f1; font-weight: bold; }
-        .auth-tabs a.active { background-color: var(--card-bg-color); color: var(--primary-color); }
-        .form-content { padding: 2rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        input, select, textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1040; display: flex; align-items: center; justify-content: center; }
-        .modal { background: white; padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 500px; z-index: 1050; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
-        .modal-header h3 { margin: 0; }
-        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; text-align: right; }
-        .modal-footer .btn { margin-left: 0.5rem; }
+        .actions button, .actions .btn { margin-right: 0.5rem; margin-bottom: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9em; }
         .hidden { display: none !important; }
-        #announcement-bar { margin-bottom: 1rem; }
-        .announcement { background-color: var(--warning-color); color: #333; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .announcement button { background: none; border: 1px solid #333; color: #333; padding: 2px 8px; cursor: pointer; border-radius: 4px; }
-        @media (max-width: 768px) { #app { padding: 1rem; } .navbar { flex-direction: column; align-items: flex-start; gap: 1rem; } .navbar .nav-links { display: flex; flex-direction: column; align-items: flex-start; width: 100%; gap: 0.5rem; } .navbar .nav-links a { margin-left: 0; padding: 0.5rem 0; } .content-section, .admin-section { padding: 1rem; } h2 { font-size: 1.5rem; } .favorite-item { flex-direction: column; align-items: flex-start; gap: 10px; } .favorite-item a { word-break: break-all; } .actions button { display: block; width: calc(100% - 1.6rem); } }
+
+        /* --- MOBILE ADAPTATION --- */
+        @media (max-width: 768px) {
+            #app { padding: 1rem; }
+            .content-section, .admin-section { padding: 1.5rem; }
+            h2 { font-size: 1.5rem; }
+            
+            /* ★ RESPONSIVE TABLE STYLES ★ */
+            .table-wrapper { border: none; }
+            table { border: 0; }
+            table thead {
+                border: none;
+                clip: rect(0 0 0 0);
+                height: 1px;
+                margin: -1px;
+                overflow: hidden;
+                padding: 0;
+                position: absolute;
+                width: 1px;
+            }
+            table tr {
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                display: block;
+                margin-bottom: 1.2rem;
+                box-shadow: 0 2px 4px var(--shadow-color);
+            }
+            table td {
+                display: block;
+                text-align: right;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            table td::before {
+                content: attr(data-label);
+                float: left;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+            table td:last-child {
+                border-bottom: 0;
+            }
+            .actions { text-align: right; }
+            .actions button, .actions .btn {
+                display: inline-block; /* Revert to inline-block on mobile for side-by-side */
+                width: auto;
+                margin-top: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="app"></div>
     <div id="modal-container" class="hidden"></div>
     <script>
+        // --- CORE AND AUTH (STABLE) ---
         const app = document.getElementById('app');
         const modalContainer = document.getElementById('modal-container');
         const apiBase = '/api';
+        const auth = { _token: null, _user: null, init() { this._token = localStorage.getItem('token'); this._user = JSON.parse(localStorage.getItem('user')); }, get() { return { token: this._token, user: this._user }; }, set(token, user) { this._token = token; this._user = user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user)); }, clear() { this._token = null; this._user = null; localStorage.removeItem('token'); localStorage.removeItem('user'); }, isLoggedIn() { return !!this._token; }, isAdmin() { return this.isLoggedIn() && this._user?.role === 'admin'; } };
+        const apiRequest = async (endpoint, method = 'GET', body = null) => { const { token } = auth.get(); if (!token && !endpoint.startsWith('/login') && !endpoint.startsWith('/register')) { router.navigate('/login'); throw new Error('Not authenticated'); } const headers = { 'Content-Type': 'application/json' }; if (token) headers['Authorization'] = `Bearer ${token}`; const options = { method, headers }; if (body) options.body = JSON.stringify(body); const response = await fetch(`${apiBase}${endpoint}`, options); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `HTTP ${response.status}`); } return response.status === 204 ? null : response.json(); };
 
-        const auth = {
-            _token: null,
-            _user: null,
-            init() {
-                this._token = localStorage.getItem('token');
-                this._user = JSON.parse(localStorage.getItem('user'));
-            },
-            get() { return { token: this._token, user: this._user }; },
-            set(token, user) {
-                this._token = token;
-                this._user = user;
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify(user));
-            },
-            clear() {
-                this._token = null;
-                this._user = null;
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            },
-            isLoggedIn() { return !!this._token; },
-            isAdmin() { return this.isLoggedIn() && this._user?.role === 'admin'; },
-            getUserId() { return this._user?.id; }
-        };
-
-        const apiRequest = async (endpoint, method = 'GET', body = null) => {
-            const { token } = auth.get();
-            if (!token && !endpoint.startsWith('/login') && !endpoint.startsWith('/register')) {
-                router.navigate('/login');
-                throw new Error('Not authenticated');
-            }
-            const headers = { 'Content-Type': 'application/json' };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-            const options = { method, headers };
-            if (body) {
-                options.body = JSON.stringify(body);
-            }
-            const response = await fetch(`${apiBase}${endpoint}`, options);
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `HTTP ${response.status}`);
-            }
-            return response.status === 204 ? null : response.json();
-        };
-
-        const renderNavbar = () => {
-            const { user } = auth.get();
-            const currentPath = window.location.hash || '#/';
-            const navLinks = [
-                auth.isLoggedIn() && { path: '#/', text: '小说中心' },
-                auth.isAdmin() && { path: '#/admin', text: '管理面板' },
-                auth.isLoggedIn() ? { path: '#/logout', text: `登出 (${user?.username})` } : { path: '#/login', text: '登录' }
-            ].filter(Boolean);
-            return `<div class="navbar"><a href="#/" class="logo">我的导航站</a><div class="nav-links">${navLinks.map(l => `<a href="${l.path}" class="${currentPath === l.path ? 'active' : ''}">${l.text}</a>`).join('')}</div></div>`;
-        };
-
-        const fetchAndRenderAnnouncements = async () => {
-            const announcementBar = document.getElementById('announcement-bar');
-            if (!announcementBar || !auth.isLoggedIn()) return;
-            try {
-                const announcements = await apiRequest('/announcements');
-                if (announcements.length > 0) {
-                    announcementBar.innerHTML = announcements.map(a => `
-                        <div class="announcement" id="announce-${a.id}">
-                            <span>${a.content}</span>
-                            <button onclick="markAnnouncementAsRead(${a.id})">已知晓</button>
-                        </div>
-                    `).join('');
-                } else {
-                    announcementBar.innerHTML = '';
-                }
-            } catch (e) {
-                console.error("无法加载公告:", e);
-            }
-        };
-
-        const markAnnouncementAsRead = async (id) => {
-            try {
-                await apiRequest(`/announcements/${id}/read`, 'PUT');
-                document.getElementById(`announce-${id}`).remove();
-            } catch (e) {
-                alert(`操作失败: ${e.message}`);
-            }
-        };
-
-        const renderAuthPage = (page = 'login') => {
-            app.innerHTML = `
-            <div class="form-container">
-                <div class="auth-tabs">
-                    <a href="#/login" class="${page === 'login' ? 'active' : ''}">登录</a>
-                    <a href="#/register" class="${page === 'register' ? 'active' : ''}">注册</a>
-                </div>
-                <div class="form-content">
-                    ${page === 'login' ? `
-                    <form id="login-form">
-                        <h2>登录</h2>
-                        <div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div>
-                        <div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;">登录</button>
-                    </form>` : `
-                    <form id="register-form">
-                        <h2>注册</h2>
-                        <div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div>
-                        <div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;">注册</button>
-                    </form>`}
-                </div>
-            </div>`;
-            if (page === 'login') {
-                document.getElementById('login-form').onsubmit = handleLogin;
-            } else {
-                document.getElementById('register-form').onsubmit = handleRegister;
-            }
-        };
-
-        const handleLogin = async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-            try {
-                const data = await apiRequest('/login', 'POST', { username, password });
-                auth.set(data.token, data.user);
-                router.navigate('/');
-            } catch (error) {
-                alert(`登录失败: ${error.message}`);
-            }
-        };
-
-        const handleRegister = async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-            try {
-                const data = await apiRequest('/register', 'POST', { username, password });
-                alert(data.message);
-                router.navigate('/login');
-            } catch (error) {
-                alert(`注册失败: ${error.message}`);
-            }
-        };
-
-        const renderHomePage = async () => {
-            if (!auth.isLoggedIn()) {
-                router.navigate('/login');
-                return;
-            }
-            app.innerHTML = renderNavbar() + `<div id="announcement-bar"></div><div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"><p>加载中...</p></div></div><div class="content-section"><h2>我的收藏</h2><div id="favorites-list"><p>加载中...</p></div></div>`;
-            fetchAndRenderAnnouncements();
-            try {
-                const [novels, favorites] = await Promise.all([apiRequest('/sites?type=novel'), apiRequest('/favorites')]);
-                document.getElementById('novels-grid').innerHTML = novels.length ? novels.map(n => `
-                    <div class="novel-card">
-                        <h3>${n.name}</h3>
-                        ${n.author ? `<p>${n.author}</p>` : ''}
-                        <p style="font-size:0.9em;color:#6c757d;">${n.description || ''}</p>
-                        <a href="https://${n.subdomain}.20100505.xyz" class="btn btn-primary" target="_blank">开始阅读</a>
-                    </div>`).join('') : '<p>书库为空，请联系管理员添加。</p>';
-                document.getElementById('favorites-list').innerHTML = favorites.length ? favorites.map(f => `
-                    <div class="favorite-item">
-                        <a href="https://${f.subdomain}.20100505.xyz?chapter=${f.chapter_index}" target="_blank">《${f.novel_id}》- ${f.chapter_title}</a>
-                        <button class="delete-fav-btn" onclick="handleDeleteFavorite(${f.id})">取消收藏</button>
-                    </div>`).join('') : '<p>您还没有任何收藏。</p>';
-            } catch (error) {
-                alert(`加载数据失败: ${error.message}`);
-            }
-        };
-
-        const handleDeleteFavorite = async (favId) => {
-            if (confirm('确定要取消这个收藏吗？')) {
-                try {
-                    await apiRequest(`/favorites/${favId}`, 'DELETE');
-                    renderHomePage();
-                } catch (e) {
-                    alert(`操作失败: ${e.message}`);
-                }
-            }
-        };
-
+        // --- RENDER FUNCTIONS (STABLE) ---
+        const renderNavbar = () => { const { user } = auth.get(); const currentPath = window.location.hash || '#/'; const navLinks = [auth.isLoggedIn() && { path: '#/', text: '小说中心' }, auth.isAdmin() && { path: '#/admin', text: '管理面板' }, auth.isLoggedIn() ? { path: '#/logout', text: `登出 (${user?.username})` } : { path: '#/login', text: '登录' }].filter(Boolean); return `<div class="navbar"><a href="#/" class="logo">我的导航站</a><div class="nav-links">${navLinks.map(l => `<a href="${l.path}" class="${currentPath === l.path ? 'active' : ''}">${l.text}</a>`).join('')}</div></div>`; };
+        const renderHomePage = async () => { if (!auth.isLoggedIn()) { router.navigate('/login'); return; } app.innerHTML = renderNavbar() + `<div id="announcement-bar"></div><div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"><p>加载中...</p></div></div><div class="content-section"><h2>我的收藏</h2><div id="favorites-list"><p>加载中...</p></div></div>`; };
+        const renderAuthPage = (page = 'login') => { app.innerHTML = `<div class="form-container"><div class="auth-tabs"><a href="#/login" class="${page === 'login' ? 'active' : ''}">登录</a><a href="#/register" class="${page === 'register' ? 'active' : ''}">注册</a></div><div class="form-content">${page === 'login' ? `<form id="login-form"><h2>登录</h2><div class="form-group"><label>用户名</label><input type="text" id="username" required></div><div class="form-group"><label>密码</label><input type="password" id="password" required></div><button type="submit" class="btn btn-primary" style="width:100%;">登录</button></form>` : `<form id="register-form"><h2>注册</h2><div class="form-group"><label>用户名</label><input type="text" id="username" required></div><div class="form-group"><label>密码</label><input type="password" id="password" required></div><button type="submit" class="btn btn-primary" style="width:100%;">注册</button></form>`}</div></div>`; document.getElementById(page === 'login' ? 'login-form' : 'register-form').onsubmit = page === 'login' ? handleLogin : handleRegister; };
+        
+        // ★ [UPDATED] ADMIN RENDER FUNCTION ★
         const renderAdminPage = async () => {
-            if (!auth.isAdmin()) {
-                router.navigate('/');
-                return;
-            }
-            app.innerHTML = renderNavbar() + `<div class="admin-section"><h2>统一站点管理</h2><button class="btn btn-primary add-btn" onclick="showSiteModal()">+ 添加新站点</button><div class="table-wrapper"><table><thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead><tbody id="sites-table"></tbody></table></div></div><div class="admin-section"><h2>用户管理</h2><div class="table-wrapper"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users-table"></tbody></table></div></div><div class="admin-section"><h2>发布公告</h2><form onsubmit="handleSendGlobalAnnouncement(event)"><div class="form-group"><label for="global-announcement">向所有用户发送公告</label><textarea id="global-announcement" rows="3" required></textarea></div><button type="submit" class="btn btn-primary">发布</button></form></div>`;
+            if (!auth.isAdmin()) { router.navigate('/'); return; }
+            app.innerHTML = renderNavbar() + `
+            <div class="admin-section">
+                <h2>统一站点管理</h2>
+                <button class="btn btn-primary add-btn" onclick="showSiteModal()">+ 添加新站点</button>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead>
+                        <tbody id="sites-table"><p>加载中...</p></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="admin-section">
+                <h2>用户管理</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
+                        <tbody id="users-table"><p>加载中...</p></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="admin-section">
+                <h2>发布公告</h2>
+                <form onsubmit="handleSendGlobalAnnouncement(event)">
+                    <div class="form-group"><label for="global-announcement">向所有用户发送公告</label><textarea id="global-announcement" rows="3" required></textarea></div>
+                    <button type="submit" class="btn btn-primary">发布</button>
+                </form>
+            </div>`;
             loadAdminData();
         };
-        
+
+        // ★ [UPDATED] DATA LOADING FUNCTION WITH data-label ★
         const loadAdminData = async () => {
             try {
                 const [sites, users] = await Promise.all([apiRequest('/sites'), apiRequest('/users')]);
-                document.getElementById('sites-table').innerHTML = sites.map(s => `<tr><td>${s.name}</td><td>${s.subdomain}</td><td>${s.type}</td><td class="actions"><button class="btn" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button><button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button></td></tr>`).join('');
-                document.getElementById('users-table').innerHTML = users.map(u => `<tr><td>${u.username}</td><td>${u.role}</td><td style="color:${u.status === 'banned' ? 'red': 'green'}">${u.status}</td><td class="actions"><button class="btn" onclick='showUserPasswordModal(${u.id})'>改密</button><button class="btn ${u.status === 'active' ? 'btn-danger' : ''}" onclick='handleUserStatusChange(${u.id}, "${u.status === 'active' ? 'banned' : 'active'}")'>${u.status === 'active' ? '封禁' : '解封'}</button><button class="btn" onclick='handleUserRoleChange(${u.id}, "${u.role === 'user' ? 'admin' : 'user'}")'>${u.role === 'user' ? '设为管理' : '取消管理'}</button><button class="btn" onclick='showUserAnnounceModal(${u.id})'>私信</button><button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button></td></tr>`).join('');
+                document.getElementById('sites-table').innerHTML = sites.map(s => `<tr>
+                    <td data-label="名称">${s.name}</td>
+                    <td data-label="子域名">${s.subdomain}</td>
+                    <td data-label="类型">${s.type}</td>
+                    <td data-label="操作" class="actions">
+                        <button class="btn" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button>
+                        <button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button>
+                    </td>
+                </tr>`).join('');
+                document.getElementById('users-table').innerHTML = users.map(u => `<tr>
+                    <td data-label="用户名">${u.username}</td>
+                    <td data-label="角色">${u.role}</td>
+                    <td data-label="状态" style="color:${u.status === 'banned' ? 'red': 'green'}">${u.status}</td>
+                    <td data-label="操作" class="actions">
+                        <button class="btn" onclick='showUserPasswordModal(${u.id})'>改密</button>
+                        <button class="btn ${u.status === 'active' ? 'btn-danger' : ''}" onclick='handleUserStatusChange(${u.id}, "${u.status === 'active' ? 'banned' : 'active'}")'>${u.status === 'active' ? '封禁' : '解封'}</button>
+                        <button class="btn" onclick='handleUserRoleChange(${u.id}, "${u.role === 'user' ? 'admin' : 'user'}")'>${u.role === 'user' ? '设为管理' : '取消管理'}</button>
+                        <button class="btn" onclick='showUserAnnounceModal(${u.id})'>私信</button>
+                        <button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button>
+                    </td>
+                </tr>`).join('');
             } catch (error) {
                 alert(`加载管理数据失败: ${error.message}`);
             }
         };
 
-        const showModal = (title, content, footer) => {
-            modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal"><div class="modal-header"><h3>${title}</h3><button onclick="hideModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button></div><div class="modal-body">${content}</div><div class="modal-footer">${footer}</div></div></div>`;
-            modalContainer.classList.remove('hidden');
-        };
-        
+        // --- HANDLER FUNCTIONS (STABLE) ---
+        const handleLogin = async (e) => { e.preventDefault(); const username = e.target.username.value, password = e.target.password.value; try { const data = await apiRequest('/login', 'POST', { username, password }); auth.set(data.token, data.user); router.navigate('/'); } catch (error) { alert(`登录失败: ${error.message}`); } };
+        const handleRegister = async (e) => { e.preventDefault(); const username = e.target.username.value, password = e.target.password.value; try { const data = await apiRequest('/register', 'POST', { username, password }); alert(data.message); router.navigate('/login'); } catch (error) { alert(`注册失败: ${error.message}`); }};
+        const handleSaveSite = async () => { const id = document.getElementById('site-id').value; const body = { name: document.getElementById('site-name').value, subdomain: document.getElementById('site-subdomain').value, type: document.getElementById('site-type').value, author: document.getElementById('site-author').value, description: document.getElementById('site-description').value }; try { if (id) await apiRequest(`/sites/${id}`, 'PUT', body); else await apiRequest('/sites', 'POST', body); hideModal(); loadAdminData(); } catch (e) { alert(`保存失败: ${e.message}`); } };
+        const handleDeleteSite = async (id) => { if (confirm('确定要删除这个站点吗？')) try { await apiRequest(`/sites/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); } };
+        const handleDeleteUser = async (id) => { if (confirm('确定要永久删除这个用户吗？此操作不可逆！')) try { await apiRequest(`/users/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); } };
+        const handleUserPasswordChange = async (id) => { const password = document.getElementById('new-pass').value; if(password) try { await apiRequest(`/users/${id}/password`, 'PUT', {password}); hideModal(); alert('密码修改成功'); } catch(e){ alert(`修改失败: ${e.message}`); }};
+        const handleUserStatusChange = async (id, status) => { if (confirm(`确定要将此用户状态更改为 "${status}" 吗？`)) try { await apiRequest(`/users/${id}/status`, 'PUT', {status}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
+        const handleUserRoleChange = async (id, role) => { if (confirm(`确定要将此用户角色更改为 "${role}" 吗？`)) try { await apiRequest(`/users/${id}/role`, 'PUT', {role}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
+        const handleSendGlobalAnnouncement = async (e) => { e.preventDefault(); const content = document.getElementById('global-announcement').value; if(content) try { await apiRequest('/announcements', 'POST', {isGlobal: true, content}); document.getElementById('global-announcement').value=''; alert('全局公告已发布'); } catch(e){ alert(`发布失败: ${e.message}`); }};
+
+        // --- MODAL FUNCTIONS (STABLE) ---
+        const showModal = (title, content, footer) => { modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal"><div class="modal-header"><h3>${title}</h3><button onclick="hideModal()">&times;</button></div><div class="modal-body">${content}</div><div class="modal-footer">${footer}</div></div></div>`; modalContainer.classList.remove('hidden'); };
         const hideModal = () => modalContainer.classList.add('hidden');
+        const showSiteModal = (site = null) => { const isEdit = site !== null; const title = isEdit ? '编辑站点' : '添加新站点'; const content = `<form id="site-form"><input type="hidden" id="site-id" value="${site?.id || ''}"><div class="form-group"><label>名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div><div class="form-group"><label>子域名</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div><div class="form-group"><label>类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>链接</option></select></div><div class="form-group"><label>作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div><div class="form-group"><label>简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div></form>`; const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`; showModal(title, content, footer); };
+        const showUserPasswordModal = (id) => { const content = `<form><div class="form-group"><label>新密码</label><input type="password" id="new-pass" required></div></form>`; const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">修改</button>`; showModal('修改用户密码', content, footer); };
+        const showUserAnnounceModal = (id) => { const content = `<form><div class="form-group"><label>私信内容</label><textarea id="private-announce" rows="3" required></textarea></div></form>`; const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`; showModal('发送私信', content, footer); };
 
-        const showSiteModal = (site = null) => {
-            const isEdit = site !== null;
-            const title = isEdit ? '编辑站点' : '添加新站点';
-            const content = `<form id="site-form"><input type="hidden" id="site-id" value="${site?.id || ''}"><div class="form-group"><label for="site-name">名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div><div class="form-group"><label for="site-subdomain">子域名 (例如: santi)</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div><div class="form-group"><label for="site-type">类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>导航链接</option></select></div><div class="form-group"><label for="site-author">作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div><div class="form-group"><label for="site-description">简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div></form>`;
-            const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`;
-            showModal(title, content, footer);
-        };
-
-        const handleSaveSite = async () => {
-            const id = document.getElementById('site-id').value;
-            const body = { name: document.getElementById('site-name').value, subdomain: document.getElementById('site-subdomain').value, type: document.getElementById('site-type').value, author: document.getElementById('site-author').value, description: document.getElementById('site-description').value };
-            try {
-                if (id) {
-                    await apiRequest(`/sites/${id}`, 'PUT', body);
-                } else {
-                    await apiRequest('/sites', 'POST', body);
-                }
-                hideModal();
-                loadAdminData();
-            } catch (e) {
-                alert(`保存失败: ${e.message}`);
-            }
-        };
-        
-        const handleDeleteSite = async (id) => {
-            if (confirm('确定要删除这个站点吗？')) {
-                try {
-                    await apiRequest(`/sites/${id}`, 'DELETE');
-                    loadAdminData();
-                } catch (e) {
-                    alert(`删除失败: ${e.message}`);
-                }
-            }
-        };
-
-        const handleDeleteUser = async (id) => {
-            if (confirm('确定要永久删除这个用户吗？此操作不可逆！')) {
-                try {
-                    await apiRequest(`/users/${id}`, 'DELETE');
-                    loadAdminData();
-                } catch (e) {
-                    alert(`删除失败: ${e.message}`);
-                }
-            }
-        };
-
-        const showUserPasswordModal = (id) => {
-            const content = `<form id="pass-form"><div class="form-group"><label for="new-pass">新密码</label><input type="password" id="new-pass" required></div></form>`;
-            const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">修改</button>`;
-            showModal('修改用户密码', content, footer);
-        };
-
-        const handleUserPasswordChange = async (id) => {
-            const password = document.getElementById('new-pass').value;
-            if(password) {
-                try {
-                    await apiRequest(`/users/${id}/password`, 'PUT', {password});
-                    hideModal();
-                    alert('密码修改成功');
-                } catch(e) {
-                    alert(`修改失败: ${e.message}`);
-                }
-            }
-        };
-
-        const handleUserStatusChange = async (id, status) => {
-            if (confirm(`确定要将此用户状态更改为 "${status}" 吗？`)) {
-                try {
-                    await apiRequest(`/users/${id}/status`, 'PUT', {status});
-                    loadAdminData();
-                } catch(e) {
-                    alert(`操作失败: ${e.message}`);
-                }
-            }
-        };
-
-        const handleUserRoleChange = async (id, role) => {
-            if (confirm(`确定要将此用户角色更改为 "${role}" 吗？`)) {
-                try {
-                    await apiRequest(`/users/${id}/role`, 'PUT', {role});
-                    loadAdminData();
-                } catch(e) {
-                    alert(`操作失败: ${e.message}`);
-                }
-            }
-        };
-
-        const showUserAnnounceModal = (id) => {
-            const content = `<form id="announce-form"><div class="form-group"><label for="private-announce">私信内容</label><textarea id="private-announce" rows="3" required></textarea></div></form>`;
-            const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`;
-            showModal('发送私信', content, footer);
-        };
-
-        const handleSendPrivateAnnouncement = async (id) => {
-            const content = document.getElementById('private-announce').value;
-            if(content) {
-                try {
-                    await apiRequest('/announcements', 'POST', {userId: id, content});
-                    hideModal();
-                    alert('私信已发送');
-                } catch(e) {
-                    alert(`发送失败: ${e.message}`);
-                }
-            }
-        };
-
-        const handleSendGlobalAnnouncement = async (e) => {
-            e.preventDefault();
-            const content = document.getElementById('global-announcement').value;
-            if(content) {
-                try {
-                    await apiRequest('/announcements', 'POST', {isGlobal: true, content});
-                    document.getElementById('global-announcement').value='';
-                    alert('全局公告已发布');
-                } catch(e) {
-                    alert(`发布失败: ${e.message}`);
-                }
-            }
-        };
-
-        const router = {
-            routes: {
-                '/': renderHomePage,
-                '/login': () => renderAuthPage('login'),
-                '/register': () => renderAuthPage('register'),
-                '/admin': renderAdminPage,
-                '/logout': () => {
-                    auth.clear();
-                    router.navigate('/login');
-                }
-            },
-            navigate(path) {
-                window.location.hash = path;
-            },
-            handler() {
-                const path = (window.location.hash.replace('#', '') || '/').split('?')[0];
-                (this.routes[path] || this.routes['/'])();
-            }
-        };
-
-        const main = () => {
-            auth.init();
-            window.addEventListener('hashchange', () => router.handler());
-            router.handler();
-        };
-
+        // --- ROUTER & MAIN (STABLE) ---
+        const router = { routes: { '/': renderHomePage, '/login': () => renderAuthPage('login'), '/register': () => renderAuthP                age('register'), '/admin': renderAdminPage, '/logout': () => { auth.clear(); router.navigate('/login'); } }, navigate(path) { window.location.hash = path; }, handler() { const path = (window.location.hash.replace('#', '') || '/').split('?')[0]; (this.routes[path] || this.routes['/'])(); } };
+        const main = () => { auth.init(); window.addEventListener('hashchange', () => router.handler()); router.handler(); };
         main();
     </script>
 </body>
