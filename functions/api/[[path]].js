@@ -1,13 +1,6 @@
 /* =================================================================
  *  Cloudflare Worker Backend (v14.0.0 - The Database Schema Fix Edition)
- *  My deepest apologies. This version fixes the fatal 500 error caused by a
- *  discrepancy between the code and the actual database schema.
- *
- *  - ★ CRITICAL 500 ERROR FIX ★: Removed the non-existent 'chapter_title' column
- *    from the SQL query in the POST /api/progress endpoint. The application will
- *    now correctly save reading progress without crashing the server.
- *  - All other features (Favorites, Permissions, etc.) are maintained from the
- *    previous complete version. This is the definitive, working backend.
+ *  新增完整用户管理和公告功能 - 根据实际数据库表结构调整
  * ================================================================= */
 
 const ROOT_ADMIN_ID = 1;
@@ -46,11 +39,9 @@ async function handleApiRequest(context) {
         // ★★★ READING PROGRESS API (FATAL 500 ERROR FIXED) ★★★
         if (pathParts[0] === 'progress') {
             if (request.method === 'POST') {
-                const { novel_id, chapter_id, position } = await request.json(); // Removed chapter_title
+                const { novel_id, chapter_id, position } = await request.json();
                 if (!novel_id) return jsonResponse({ error: 'novel_id is required' }, 400, request);
-                // ★ FIX: Removed the non-existent 'chapter_title' column from the SQL query
                 const stmt = `INSERT INTO ReadingRecords (user_id, novel_id, chapter_id, position, updated_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP) ON CONFLICT(user_id, novel_id) DO UPDATE SET chapter_id=excluded.chapter_id, position=excluded.position, updated_at=CURRENT_TIMESTAMP`;
-                // ★ FIX: Removed the non-existent 'chapter_title' variable from the bind call
                 await env.DB.prepare(stmt).bind(userId, novel_id, chapter_id, position).run();
                 return jsonResponse({ message: '进度已保存' }, 200, request);
             }
@@ -61,9 +52,103 @@ async function handleApiRequest(context) {
             }
         }
 
-        // [ANNOUNCEMENTS & USERS API - Stable]
-        if (pathParts[0] === 'announcements') { if (request.method === 'GET') { const { results } = await env.DB.prepare("SELECT id, content FROM Announcements WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC").bind(userId).all(); return jsonResponse(results, 200, request); } if (request.method === 'PUT' && pathParts[1] && pathParts[2] === 'read') { await env.DB.prepare("UPDATE Announcements SET is_read = 1 WHERE id = ? AND user_id = ?").bind(pathParts[1], userId).run(); return jsonResponse(null, 204, request); } }
-        if (pathParts[0] === 'users') { if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request); if (request.method === 'GET') {const { results } = await env.DB.prepare("SELECT id, username, role, status FROM Users").all();return jsonResponse(results, 200, request);} }
+        // [ANNOUNCEMENTS & USERS API - 根据实际表结构调整]
+        if (pathParts[0] === 'announcements') { 
+            if (request.method === 'GET') { 
+                const { results } = await env.DB.prepare("SELECT id, content FROM Announcements WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC").bind(userId).all(); 
+                return jsonResponse(results, 200, request); 
+            } 
+            if (request.method === 'PUT' && pathParts[1] && pathParts[2] === 'read') { 
+                await env.DB.prepare("UPDATE Announcements SET is_read = 1 WHERE id = ? AND user_id = ?").bind(pathParts[1], userId).run(); 
+                return jsonResponse(null, 204, request); 
+            }
+            // 新增：发送公告功能
+            if (request.method === 'POST') {
+                if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
+                const { userId: targetUserId, content, isGlobal } = await request.json();
+                
+                if (isGlobal) {
+                    // 发送全局公告给所有用户
+                    const users = await env.DB.prepare("SELECT id FROM Users").all();
+                    for (const u of users.results) {
+                        await env.DB.prepare("INSERT INTO Announcements (user_id, content, is_read) VALUES (?, ?, 0)").bind(u.id, content).run();
+                    }
+                    return jsonResponse({ message: '全局公告已发送' }, 201, request);
+                } else if (targetUserId) {
+                    // 发送私信给特定用户
+                    await env.DB.prepare("INSERT INTO Announcements (user_id, content, is_read) VALUES (?, ?, 0)").bind(targetUserId, content).run();
+                    return jsonResponse({ message: '私信已发送' }, 201, request);
+                } else {
+                    return jsonResponse({ error: '参数错误' }, 400, request);
+                }
+            }
+        }
+        
+        if (pathParts[0] === 'users') { 
+            if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request); 
+            
+            if (request.method === 'GET') {
+                const { results } = await env.DB.prepare("SELECT id, username, role, status FROM Users").all();
+                return jsonResponse(results, 200, request);
+            }
+            
+            // 新增：用户管理功能
+            if (request.method === 'PUT' && pathParts[1]) {
+                const targetUserId = parseInt(pathParts[1]);
+                const action = pathParts[2];
+                
+                // 防止修改根管理员
+                if (targetUserId === ROOT_ADMIN_ID) {
+                    return jsonResponse({ error: '无法修改根管理员账户' }, 403, request);
+                }
+                
+                const data = await request.json();
+                
+                if (action === 'password') {
+                    // 修改用户密码
+                    const { password } = data;
+                    if (!password) return jsonResponse({ error: '密码不能为空' }, 400, request);
+                    const password_hash = await hashPassword(password);
+                    await env.DB.prepare("UPDATE Users SET password_hash = ? WHERE id = ?").bind(password_hash, targetUserId).run();
+                    return jsonResponse({ message: '密码修改成功' }, 200, request);
+                    
+                } else if (action === 'status') {
+                    // 修改用户状态
+                    const { status } = data;
+                    if (!['active', 'banned'].includes(status)) return jsonResponse({ error: '状态参数错误' }, 400, request);
+                    await env.DB.prepare("UPDATE Users SET status = ? WHERE id = ?").bind(status, targetUserId).run();
+                    return jsonResponse({ message: `用户已${status === 'banned' ? '封禁' : '激活'}` }, 200, request);
+                    
+                } else if (action === 'role') {
+                    // 修改用户角色
+                    const { role } = data;
+                    if (!['admin', 'user'].includes(role)) return jsonResponse({ error: '角色参数错误' }, 400, request);
+                    await env.DB.prepare("UPDATE Users SET role = ? WHERE id = ?").bind(role, targetUserId).run();
+                    return jsonResponse({ message: `用户角色已设置为${role}` }, 200, request);
+                }
+            }
+            
+            // 删除用户
+            if (request.method === 'DELETE' && pathParts[1]) {
+                const targetUserId = parseInt(pathParts[1]);
+                
+                // 防止删除根管理员和自己
+                if (targetUserId === ROOT_ADMIN_ID) {
+                    return jsonResponse({ error: '无法删除根管理员账户' }, 403, request);
+                }
+                if (targetUserId === userId) {
+                    return jsonResponse({ error: '无法删除自己的账户' }, 403, request);
+                }
+                
+                // 删除用户相关数据
+                await env.DB.prepare("DELETE FROM FavoriteChapters WHERE user_id = ?").bind(targetUserId).run();
+                await env.DB.prepare("DELETE FROM ReadingRecords WHERE user_id = ?").bind(targetUserId).run();
+                await env.DB.prepare("DELETE FROM Announcements WHERE user_id = ?").bind(targetUserId).run();
+                await env.DB.prepare("DELETE FROM Users WHERE id = ?").bind(targetUserId).run();
+                
+                return jsonResponse({ message: '用户已删除' }, 200, request);
+            }
+        }
 
         return jsonResponse({ error: `API路由未找到: ${request.method} ${url.pathname}` }, 404, request);
     } catch (e) {
