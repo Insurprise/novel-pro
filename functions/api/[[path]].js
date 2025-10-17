@@ -1,6 +1,7 @@
 /* =================================================================
  *  Cloudflare Worker Backend (v14.0.0 - The Database Schema Fix Edition)
  *  新增完整用户管理和公告功能 - 根据实际数据库表结构调整
+ *  保持原有的阅读记录、收藏等功能不变
  * ================================================================= */
 
 const ROOT_ADMIN_ID = 1;
@@ -36,7 +37,7 @@ async function handleApiRequest(context) {
         if (pathParts[0] === 'sites') { if (request.method === 'GET') { const type = url.searchParams.get('type'); const { results } = await env.DB.prepare(`SELECT * FROM Sites ${type ? 'WHERE type = ?' : ''} ORDER BY name`).bind(...(type ? [type] : [])).all(); return jsonResponse(results, 200, request); } if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request); if (request.method === 'POST') { const d = await request.json(); await env.DB.prepare("INSERT INTO Sites (name, subdomain, type, author, description) VALUES (?, ?, ?, ?, ?)").bind(d.name, d.subdomain, d.type, d.author, d.description).run(); return jsonResponse({ message: '创建成功' }, 201, request); } if (request.method === 'PUT' && pathParts[1]) { const d = await request.json(); await env.DB.prepare("UPDATE Sites SET name=?, subdomain=?, type=?, author=?, description=? WHERE id=?").bind(d.name, d.subdomain, d.type, d.author, d.description, pathParts[1]).run(); return jsonResponse({ message: '更新成功' }, 200, request); } if (request.method === 'DELETE' && pathParts[1]) { await env.DB.prepare("DELETE FROM Sites WHERE id = ?").bind(pathParts[1]).run(); return jsonResponse(null, 204, request); } }
         if (pathParts[0] === 'favorites') { if (request.method === 'GET') { const { results } = await env.DB.prepare("SELECT novel_id, chapter_id FROM FavoriteChapters WHERE user_id = ?").bind(userId).all(); return jsonResponse(results, 200, request); } if (request.method === 'POST') { const { novel_id, chapter_id, chapter_index, chapter_title } = await request.json(); await env.DB.prepare("INSERT INTO FavoriteChapters (user_id, novel_id, chapter_id, chapter_ind, chapter_title) VALUES (?, ?, ?, ?, ?) ON CONFLICT(user_id, novel_id, chapter_id) DO NOTHING").bind(userId, novel_id, chapter_id, chapter_index, chapter_title).run(); return jsonResponse({ message: '收藏成功' }, 201, request); } if (request.method === 'DELETE') { const { novel_id, chapter_id } = await request.json(); await env.DB.prepare("DELETE FROM FavoriteChapters WHERE user_id = ? AND novel_id = ? AND chapter_id = ?").bind(userId, novel_id, chapter_id).run(); return jsonResponse(null, 204, request); } }
 
-        // ★★★ READING PROGRESS API (FATAL 500 ERROR FIXED) ★★★
+        // [READING PROGRESS API - Stable - 保持不变]
         if (pathParts[0] === 'progress') {
             if (request.method === 'POST') {
                 const { novel_id, chapter_id, position } = await request.json();
@@ -52,7 +53,7 @@ async function handleApiRequest(context) {
             }
         }
 
-        // [ANNOUNCEMENTS & USERS API - 根据实际表结构调整]
+        // [ANNOUNCEMENTS & USERS API - 新增完整功能]
         if (pathParts[0] === 'announcements') { 
             if (request.method === 'GET') { 
                 const { results } = await env.DB.prepare("SELECT id, content FROM Announcements WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC").bind(userId).all(); 
