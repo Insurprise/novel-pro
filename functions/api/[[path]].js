@@ -1,14 +1,24 @@
 /* =================================================================
  *  Cloudflare Worker Backend (v14.0.0 - The Database Schema Fix Edition)
- *  新增完整用户管理和公告功能 - 根据实际数据库表结构调整
- *  保持原有的阅读记录、收藏等功能不变
+ *  修复已知晓和删除操作的响应问题
  * ================================================================= */
 
 const ROOT_ADMIN_ID = 1;
 
 // --- Helper Functions (Stable) ---
 const handleOptions = (request) => { const origin = request.headers.get("Origin") || "*"; const headers = { "Access-Control-Allow-Origin": origin, "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Max-Age": "86400" }; return new Response(null, { headers }); };
-const jsonResponse = (data, status = 200, request) => { const origin = request.headers.get("Origin") || "*"; const headers = { "Content-Type": "application/json;charset=UTF-8", "Access-Control-Allow-Origin": origin }; return new Response(JSON.stringify(data, null, 2), { status, headers }); };
+const jsonResponse = (data, status = 200, request) => { 
+    const origin = request.headers.get("Origin") || "*"; 
+    const headers = { 
+        "Content-Type": "application/json;charset=UTF-8", 
+        "Access-Control-Allow-Origin": origin 
+    }; 
+    // 对于204状态码，不返回任何内容
+    if (status === 204) {
+        return new Response(null, { status, headers });
+    }
+    return new Response(JSON.stringify(data, null, 2), { status, headers }); 
+};
 async function hashPassword(password) { const utf8 = new TextEncoder().encode(password); const hashBuffer = await crypto.subtle.digest('SHA-256', utf8); const hashArray = Array.from(new Uint8Array(hashBuffer)); return hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); }
 function getUserFromToken(request) { const authHeader = request.headers.get('Authorization'); if (!authHeader || !authHeader.startsWith('Bearer ')) return null; try { const token = authHeader.split(' ')[1]; return JSON.parse(atob(token)); } catch (e) { return null; } }
 
@@ -34,10 +44,48 @@ async function handleApiRequest(context) {
         const userId = user.id;
         
         // [SITES API & FAVORITES API - Stable]
-        if (pathParts[0] === 'sites') { if (request.method === 'GET') { const type = url.searchParams.get('type'); const { results } = await env.DB.prepare(`SELECT * FROM Sites ${type ? 'WHERE type = ?' : ''} ORDER BY name`).bind(...(type ? [type] : [])).all(); return jsonResponse(results, 200, request); } if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request); if (request.method === 'POST') { const d = await request.json(); await env.DB.prepare("INSERT INTO Sites (name, subdomain, type, author, description) VALUES (?, ?, ?, ?, ?)").bind(d.name, d.subdomain, d.type, d.author, d.description).run(); return jsonResponse({ message: '创建成功' }, 201, request); } if (request.method === 'PUT' && pathParts[1]) { const d = await request.json(); await env.DB.prepare("UPDATE Sites SET name=?, subdomain=?, type=?, author=?, description=? WHERE id=?").bind(d.name, d.subdomain, d.type, d.author, d.description, pathParts[1]).run(); return jsonResponse({ message: '更新成功' }, 200, request); } if (request.method === 'DELETE' && pathParts[1]) { await env.DB.prepare("DELETE FROM Sites WHERE id = ?").bind(pathParts[1]).run(); return jsonResponse(null, 204, request); } }
-        if (pathParts[0] === 'favorites') { if (request.method === 'GET') { const { results } = await env.DB.prepare("SELECT novel_id, chapter_id FROM FavoriteChapters WHERE user_id = ?").bind(userId).all(); return jsonResponse(results, 200, request); } if (request.method === 'POST') { const { novel_id, chapter_id, chapter_index, chapter_title } = await request.json(); await env.DB.prepare("INSERT INTO FavoriteChapters (user_id, novel_id, chapter_id, chapter_ind, chapter_title) VALUES (?, ?, ?, ?, ?) ON CONFLICT(user_id, novel_id, chapter_id) DO NOTHING").bind(userId, novel_id, chapter_id, chapter_index, chapter_title).run(); return jsonResponse({ message: '收藏成功' }, 201, request); } if (request.method === 'DELETE') { const { novel_id, chapter_id } = await request.json(); await env.DB.prepare("DELETE FROM FavoriteChapters WHERE user_id = ? AND novel_id = ? AND chapter_id = ?").bind(userId, novel_id, chapter_id).run(); return jsonResponse(null, 204, request); } }
+        if (pathParts[0] === 'sites') { 
+            if (request.method === 'GET') { 
+                const type = url.searchParams.get('type'); 
+                const { results } = await env.DB.prepare(`SELECT * FROM Sites ${type ? 'WHERE type = ?' : ''} ORDER BY name`).bind(...(type ? [type] : [])).all(); 
+                return jsonResponse(results, 200, request); 
+            } 
+            if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request); 
+            if (request.method === 'POST') { 
+                const d = await request.json(); 
+                await env.DB.prepare("INSERT INTO Sites (name, subdomain, type, author, description) VALUES (?, ?, ?, ?, ?)").bind(d.name, d.subdomain, d.type, d.author, d.description).run(); 
+                return jsonResponse({ message: '创建成功' }, 201, request); 
+            } 
+            if (request.method === 'PUT' && pathParts[1]) { 
+                const d = await request.json(); 
+                await env.DB.prepare("UPDATE Sites SET name=?, subdomain=?, type=?, author=?, description=? WHERE id=?").bind(d.name, d.subdomain, d.type, d.author, d.description, pathParts[1]).run(); 
+                return jsonResponse({ message: '更新成功' }, 200, request); 
+            } 
+            if (request.method === 'DELETE' && pathParts[1]) { 
+                await env.DB.prepare("DELETE FROM Sites WHERE id = ?").bind(pathParts[1]).run(); 
+                // ★★★ 修复：返回204状态码，无内容 ★★★
+                return jsonResponse(null, 204, request); 
+            } 
+        }
+        if (pathParts[0] === 'favorites') { 
+            if (request.method === 'GET') { 
+                const { results } = await env.DB.prepare("SELECT novel_id, chapter_id FROM FavoriteChapters WHERE user_id = ?").bind(userId).all(); 
+                return jsonResponse(results, 200, request); 
+            } 
+            if (request.method === 'POST') { 
+                const { novel_id, chapter_id, chapter_index, chapter_title } = await request.json(); 
+                await env.DB.prepare("INSERT INTO FavoriteChapters (user_id, novel_id, chapter_id, chapter_ind, chapter_title) VALUES (?, ?, ?, ?, ?) ON CONFLICT(user_id, novel_id, chapter_id) DO NOTHING").bind(userId, novel_id, chapter_id, chapter_index, chapter_title).run(); 
+                return jsonResponse({ message: '收藏成功' }, 201, request); 
+            } 
+            if (request.method === 'DELETE') { 
+                const { novel_id, chapter_id } = await request.json(); 
+                await env.DB.prepare("DELETE FROM FavoriteChapters WHERE user_id = ? AND novel_id = ? AND chapter_id = ?").bind(userId, novel_id, chapter_id).run(); 
+                // ★★★ 修复：返回204状态码，无内容 ★★★
+                return jsonResponse(null, 204, request); 
+            } 
+        }
 
-        // [READING PROGRESS API - Stable - 保持不变]
+        // [READING PROGRESS API - Stable]
         if (pathParts[0] === 'progress') {
             if (request.method === 'POST') {
                 const { novel_id, chapter_id, position } = await request.json();
@@ -53,7 +101,7 @@ async function handleApiRequest(context) {
             }
         }
 
-        // [ANNOUNCEMENTS & USERS API - 新增完整功能]
+        // [ANNOUNCEMENTS & USERS API - 修复响应问题]
         if (pathParts[0] === 'announcements') { 
             if (request.method === 'GET') { 
                 const { results } = await env.DB.prepare("SELECT id, content FROM Announcements WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC").bind(userId).all(); 
@@ -61,9 +109,10 @@ async function handleApiRequest(context) {
             } 
             if (request.method === 'PUT' && pathParts[1] && pathParts[2] === 'read') { 
                 await env.DB.prepare("UPDATE Announcements SET is_read = 1 WHERE id = ? AND user_id = ?").bind(pathParts[1], userId).run(); 
+                // ★★★ 修复：返回204状态码，无内容 ★★★
                 return jsonResponse(null, 204, request); 
             }
-            // 新增：发送公告功能
+            // 发送公告功能
             if (request.method === 'POST') {
                 if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
                 const { userId: targetUserId, content, isGlobal } = await request.json();
@@ -93,7 +142,7 @@ async function handleApiRequest(context) {
                 return jsonResponse(results, 200, request);
             }
             
-            // 新增：用户管理功能
+            // 用户管理功能
             if (request.method === 'PUT' && pathParts[1]) {
                 const targetUserId = parseInt(pathParts[1]);
                 const action = pathParts[2];
