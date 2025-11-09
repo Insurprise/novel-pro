@@ -41,12 +41,26 @@
         .modal { background: white; padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 500px; z-index: 1050; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
         .modal-header h3 { margin: 0; }
-        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; text-align: richtigen; }
+        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; text-align: right; }
         .modal-footer .btn { margin-left: 0.5rem; }
         #announcement-bar { margin-bottom: 1rem; }
         .announcement { background-color: var(--warning-color); color: #333; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
         .announcement button { background: none; border: 1px solid #333; color: #333; padding: 2px 8px; cursor: pointer; border-radius: 4px; }
         .hidden { display: none !important; }
+
+        /* 新增：小说卡片网格布局 */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .novel-card { background: #fdfdfd; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 6px var(--shadow-color); display: flex; flex-direction: column; }
+        .novel-card h3 { margin: 0 0 1rem 0; font-size: 1.25rem; color: var(--primary-color); }
+        .novel-card .btn { margin-top: auto; /* 按钮推到底部 */ }
+
+        /* 新增：折叠样式 */
+        .novel-card details { margin-bottom: 1rem; font-size: 0.9em; color: #555; }
+        .novel-card summary { cursor: pointer; font-weight: bold; color: #111; list-style: none; /* 移除默认箭头 */ }
+        .novel-card summary::before { content: '▶ '; font-size: 0.8em; }
+        .novel-card details[open] summary::before { content: '▼ '; }
+        .novel-card .details-content { padding-top: 0.5rem; padding-left: 1.4rem; line-height: 1.7; }
+
 
         @media (max-width: 768px) {
             #app { padding: 1rem; } .content-section, .admin-section { padding: 1.5rem 1rem; } h2 { font-size: 1.5rem; }
@@ -71,7 +85,43 @@
         const auth = { _token: null, _user: null, init() { this._token = localStorage.getItem('token'); this._user = JSON.parse(localStorage.getItem('user')); }, get() { return { token: this._token, user: this._user }; }, set(token, user) { this._token = token; this._user = user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user)); }, clear() { this._token = null; this._user = null; localStorage.removeItem('token'); localStorage.removeItem('user'); }, isLoggedIn() { return !!this._token; }, isAdmin() { return this.isLoggedIn() && this._user?.role === 'admin'; } };
         const apiRequest = async (endpoint, method = 'GET', body = null) => { const { token } = auth.get(); if (!token && !endpoint.startsWith('/login') && !endpoint.startsWith('/register')) { router.navigate('/login'); throw new Error('Not authenticated'); } const headers = { 'Content-Type': 'application/json' }; if (token) headers['Authorization'] = `Bearer ${token}`; const options = { method, headers }; if (body) options.body = JSON.stringify(body); const response = await fetch(`${apiBase}${endpoint}`, options); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `HTTP ${response.status}`); } return response.status === 204 ? null : response.json(); };
         const renderNavbar = () => { const { user } = auth.get(); const currentPath = window.location.hash || '#/'; const navLinks = [auth.isLoggedIn() && { path: '#/', text: '小说中心' }, auth.isAdmin() && { path: '#/admin', text: '管理面板' }, auth.isLoggedIn() ? { path: '#/logout', text: `登出 (${user?.username})` } : { path: '#/login', text: '登录' }].filter(Boolean); return `<div class="navbar"><a href="#/" class="logo">我的导航站</a><div class="nav-links">${navLinks.map(l => `<a href="${l.path}" class="${currentPath === l.path ? 'active' : ''}">${l.text}</a>`).join('')}</div></div>`; };
-        const renderHomePage = async () => { if (!auth.isLoggedIn()) { router.navigate('/login'); return; } app.innerHTML = renderNavbar() + `<div id="announcement-bar"></div><div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"></div></div>`; fetchAndRenderAnnouncements(); try { const novels = await apiRequest('/sites?type=novel'); document.getElementById('novels-grid').innerHTML = novels.length ? novels.map(n => `<div class="novel-card"><h3>${n.name}</h3>${n.author?`<p>${n.author}</p>`:''}<p>${n.description||''}</p><a href="https://${n.subdomain}.20100505.xyz" class="btn btn-primary" target="_blank">开始阅读</a></div>`).join('') : '<p>书库为空。</p>'; } catch (error) { document.getElementById('novels-grid').innerHTML = `<p style="color:red;">加载书库失败: ${error.message}</p>`; } };
+        
+        // --- 修改 renderHomePage ---
+        const renderHomePage = async () => { 
+            if (!auth.isLoggedIn()) { router.navigate('/login'); return; } 
+            app.innerHTML = renderNavbar() + `<div id="announcement-bar"></div><div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"></div></div>`; 
+            fetchAndRenderAnnouncements(); 
+            try { 
+                const novels = await apiRequest('/sites?type=novel'); 
+                const novelsGrid = document.getElementById('novels-grid');
+                if (novels.length) {
+                    novelsGrid.innerHTML = novels.map(n => `
+                        <div class="novel-card">
+                            <h3>${n.name}</h3>
+                            ${n.author ? `
+                            <details>
+                                <summary>作者</summary>
+                                <div class="details-content">${n.author}</div>
+                            </details>
+                            ` : ''}
+                            ${n.description ? `
+                            <details>
+                                <summary>简介</summary>
+                                <div class="details-content">${n.description}</div>
+                            </details>
+                            ` : ''}
+                            <a href="https://${n.subdomain}.20100505.xyz" class="btn btn-primary" target="_blank">开始阅读</a>
+                        </div>
+                    `).join('');
+                } else {
+                    novelsGrid.innerHTML = '<p>书库为空。</p>';
+                }
+            } catch (error) { 
+                document.getElementById('novels-grid').innerHTML = `<p style="color:red;">加载书库失败: ${error.message}</p>`; 
+            } 
+        };
+        // --- 修改结束 ---
+
         const renderAuthPage = (page = 'login') => { app.innerHTML = `<div class="form-container"><div class="auth-tabs"><a href="#/login" class="${page === 'login' ? 'active' : ''}">登录</a><a href="#/register" class="${page === 'register' ? 'active' : ''}">注册</a></div><div class="form-content">${page === 'login' ? `<form id="login-form"><h2>登录</h2><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div><button type="submit" class="btn btn-primary" style="width:100%;">登录</button></form>` : `<form id="register-form"><h2>注册</h2><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div><button type="submit" class="btn btn-primary" style="width:100%;">注册</button></form>`}</div></div>`; document.getElementById(page === 'login' ? 'login-form' : 'register-form').onsubmit = page === 'login' ? handleLogin : handleRegister; };
         const renderAdminPage = async () => { if (!auth.isAdmin()) { router.navigate('/'); return; } app.innerHTML = renderNavbar() + `<div class="admin-section"><h2>统一站点管理</h2><button class="btn btn-primary add-btn" onclick="showSiteModal()">+ 添加新站点</button><div class="table-wrapper"><table><thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead><tbody id="sites-table"></tbody></table></div></div><div class="admin-section"><h2>用户管理</h2><div class="table-wrapper"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users-table"></tbody></table></div></div><div class="admin-section"><h2>发布公告</h2><form id="global-announcement-form"><div class="form-group"><label for="global-announcement">向所有用户发送公告</label><textarea id="global-announcement" rows="3" required></textarea></div><button type="submit" class="btn btn-primary">发布</button></form></div>`; loadAdminData(); document.getElementById('global-announcement-form').onsubmit = handleSendGlobalAnnouncement; };
         const loadAdminData = async () => {
