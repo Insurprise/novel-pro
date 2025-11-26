@@ -2,19 +2,19 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的私人导航站</title>
     <style>
         :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f8fafc;
+            --primary-color: #4f46e5; /* Indigo 600 */
+            --primary-hover: #4338ca; /* Indigo 700 */
+            --bg-color: #f8fafc;      /* Slate 50 */
             --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --danger-color: #ef4444;
-            --success-color: #10b981;
+            --text-main: #1e293b;     /* Slate 800 */
+            --text-secondary: #64748b; /* Slate 500 */
+            --border-color: #e2e8f0;  /* Slate 200 */
+            --danger-color: #ef4444;  /* Red 500 */
+            --success-color: #10b981; /* Emerald 500 */
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -95,7 +95,7 @@
             background-color: #eef2ff;
         }
 
-        /* --- 按钮 --- */
+        /* --- 按钮 (精致) --- */
         .btn {
             padding: 0.7rem 1.4rem;
             border-radius: 10px;
@@ -178,7 +178,7 @@
             display: grid;
             /* 优化 Grid：允许更小的最小宽度，适应手机 */
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
+            gap: 2rem;
         }
         .novel-card {
             background: #ffffff;
@@ -411,14 +411,14 @@
                 border-bottom: 1px solid var(--border-color);
                 flex-direction: column; 
                 align-items: stretch; 
-                gap: 0.8rem; /* 减小间距 */
-                padding: 0.8rem 1rem; /* 减小内边距 */
-                background-color: rgba(255, 255, 255, 0.95); /* 不透明度稍微高一点 */
+                gap: 0.5rem; /* 减小间距，让导航更紧凑 */
+                padding: 1rem 1.5rem; /* 恢复适当内边距 */
+                background-color: rgba(255, 255, 255, 0.98); /* 不透明度稍微高一点 */
             }
             
-            /* 导航链接优化 */
+            /* 导航链接优化 - 更大一些 */
             .navbar .nav-links { 
-                justify-content: flex-start; 
+                justify-content: space-between; /* 链接填满宽度 */
                 width: 100%; 
                 gap: 0.5rem; 
                 flex-wrap: nowrap;
@@ -430,31 +430,35 @@
                 display: none; /* 隐藏滚动条 */
             }
             .navbar .nav-links a { 
-                padding: 0.4rem 0.8rem; /* 减小内边距 */
+                padding: 0.7rem 1.2rem; /* 增大内边距 */
                 background: #f1f5f9; 
-                border-radius: 50px; 
-                font-size: 0.85rem; 
+                border-radius: 12px; /* 更大的圆角 */
+                font-size: 0.95rem; /* 增大字号 */
                 white-space: nowrap; /* 防止换行 */
                 flex-shrink: 0;
+                flex-grow: 1; /* 均分空间 */
+                text-align: center;
             }
             .navbar .nav-links a.active { background: #eef2ff; }
             
             .navbar .logo {
-                font-size: 1.2rem; /* 稍微减小 Logo 大小 */
+                font-size: 1.4rem; /* 恢复 Logo 大小 */
+                text-align: left;
+                width: 100%;
             }
 
             /* 内容区域内边距 */
             .content-section, .admin-section {
                 margin: 1rem; /* 增加一点外边距 */
-                padding: 1.2rem; /* 减小内边距 */
+                padding: 1.5rem; /* 恢复舒适内边距 */
                 width: auto; /* 自动宽度 */
-                border-radius: 12px; /* 稍微减小圆角 */
+                border-radius: 16px; /* 恢复圆角 */
             }
             
             /* 卡片网格调整 */
             .card-grid {
                 grid-template-columns: 1fr; /* 单列 */
-                gap: 1rem;
+                gap: 1.5rem;
             }
 
             /* 表单容器 */
