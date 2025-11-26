@@ -3,81 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的私人导航站 - 管理中心</title>
+    <title>我的私人导航站</title>
     <style>
         :root {
-            --primary-color: #007bff; --primary-hover-color: #0056b3; --danger-color: #dc3545; --danger-hover-color: #c82333;
-            --success-color: #28a745; --warning-color: #ffc107; --text-color: #333; --body-bg-color: #f8f9fa;
-            --card-bg-color: #fff; --border-color: #dee2e6; --shadow-color: rgba(0, 0, 0, 0.05);
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            --primary-color: #2563eb; 
+            --primary-hover: #1d4ed8;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-bg: #fef3c7;
+            --warning-text: #92400e;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
         }
-        body { font-family: var(--font-family); margin: 0; background-color: var(--body-bg-color); color: var(--text-color); line-height: 1.6; }
-        #app { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg-color); padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow-color); margin-bottom: 2rem; }
-        .navbar .logo { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: var(--primary-color); }
-        .navbar .nav-links a { margin-left: 1.5rem; text-decoration: none; color: var(--text-color); font-weight: 500; }
-        .btn { padding: 0.6rem 1.2rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: background-color 0.2s; text-align: center; }
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-primary:hover { background-color: var(--primary-hover-color); }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .navbar .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            transition: color 0.2s;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        .navbar .nav-links a:hover, .navbar .nav-links a.active {
+            color: var(--primary-color);
+        }
+        .navbar .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background-color: var(--primary-color); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background-color: var(--primary-hover); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
         .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-danger:hover { background-color: var(--danger-hover-color); }
-        .content-section, .admin-section { background-color: var(--card-bg-color); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 4px 12px var(--shadow-color); }
-        h2 { margin-top: 0; padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); }
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        th { background-color: #f8f9fa; font-weight: 600; }
-        .actions button, .actions .btn { margin-right: 0.5rem; margin-bottom: 0.5rem; }
-        .add-btn { margin-bottom: 1.5rem; }
-        .form-container { width: 100%; max-width: 400px; margin: 2rem auto; background: var(--card-bg-color); border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); overflow: hidden; }
-        .form-content { padding: 2rem; }
+        .btn-danger:hover { opacity: 0.9; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background-color: var(--bg-color); }
+
+        /* 区块容器 */
+        .content-section, .admin-section {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* 小说卡片网格 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .novel-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .novel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+        .novel-card h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.25rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+        
+        /* 美化的折叠样式 */
+        .novel-card details {
+            margin-bottom: 0.8rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .novel-card summary {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            user-select: none;
+            transition: background 0.2s;
+            list-style: none; /* 隐藏默认箭头 */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .novel-card summary::-webkit-details-marker { display: none; }
+        .novel-card summary::after {
+            content: '+';
+            font-size: 1.2em;
+            font-weight: normal;
+        }
+        .novel-card details[open] summary::after {
+            content: '-';
+        }
+        .novel-card summary:hover {
+            background-color: #e5e7eb;
+            color: var(--text-main);
+        }
+        .novel-card .details-content {
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.6;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            background: #fff;
+        }
+        
+        .novel-card .btn {
+            margin-top: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 表格美化 */
+        .table-wrapper { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th { background-color: #f9fafb; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; padding: 1rem; text-align: left; }
+        td { padding: 1rem; border-top: 1px solid var(--border-color); color: var(--text-main); }
+        tr:hover td { background-color: #f9fafb; }
+        .actions button { margin-right: 0.5rem; font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+
+        /* 表单美化 */
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+            margin: 4rem auto;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+        .auth-tabs a {
+            flex: 1;
+            text-align: center;
+            padding: 1.2rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            background: #f9fafb;
+            transition: all 0.2s;
+        }
+        .auth-tabs a.active { background: var(--card-bg); color: var(--primary-color); border-top: 3px solid var(--primary-color); margin-top: -3px; }
+        .form-content { padding: 2.5rem; }
         .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        input, select, textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
-        .auth-tabs { display: flex; }
-        .auth-tabs a { flex: 1; text-align: center; padding: 1rem; text-decoration: none; color: var(--text-color); background-color: #f1f1f1; font-weight: bold; }
-        .auth-tabs a.active { background-color: var(--card-bg-color); color: var(--primary-color); }
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1040; display: flex; align-items: center; justify-content: center; }
-        .modal { background: white; padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 500px; z-index: 1050; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
-        .modal-header h3 { margin: 0; }
-        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; text-align: right; }
-        .modal-footer .btn { margin-left: 0.5rem; }
-        #announcement-bar { margin-bottom: 1rem; }
-        .announcement { background-color: var(--warning-color); color: #333; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .announcement button { background: none; border: 1px solid #333; color: #333; padding: 2px 8px; cursor: pointer; border-radius: 4px; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main); font-size: 0.95rem; }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-color); }
+
+        /* 模态框 */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 1040; display: flex; align-items: center; justify-content: center;
+            opacity: 0; animation: fadeIn 0.2s forwards;
+        }
+        .modal {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: scale(0.95); animation: scaleIn 0.2s forwards;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes scaleIn { to { transform: scale(1); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .modal-header h3 { margin: 0; font-size: 1.25rem; }
+        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem; text-align: right; }
+
+        /* 公告栏 */
+        .announcement {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fcd34d;
+            box-shadow: var(--shadow-sm);
+        }
+        .announcement button {
+            background: white;
+            border: 1px solid #f59e0b;
+            color: #d97706;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
         .hidden { display: none !important; }
 
-        /* 新增：小说卡片网格布局 */
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
-        .novel-card { background: #fdfdfd; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 6px var(--shadow-color); display: flex; flex-direction: column; }
-        .novel-card h3 { margin: 0 0 1rem 0; font-size: 1.25rem; color: var(--primary-color); }
-        .novel-card .btn { margin-top: auto; /* 按钮推到底部 */ }
-
-        /* 新增：折叠样式 */
-        .novel-card details { margin-bottom: 1rem; font-size: 0.9em; color: #555; }
-        .novel-card summary { cursor: pointer; font-weight: bold; color: #111; list-style: none; /* 移除默认箭头 */ }
-        .novel-card summary::before { content: '▶ '; font-size: 0.8em; }
-        .novel-card details[open] summary::before { content: '▼ '; }
-        .novel-card .details-content { padding-top: 0.5rem; padding-left: 1.4rem; line-height: 1.7; }
-
-
         @media (max-width: 768px) {
-            #app { padding: 1rem; } .content-section, .admin-section { padding: 1.5rem 1rem; } h2 { font-size: 1.5rem; }
-            .navbar { flex-direction: column; align-items: flex-start; gap: 1rem; } .navbar .nav-links { display: flex; flex-direction: column; width: 100%; gap: 0.5rem; margin-top: 1rem; } .navbar .nav-links a { margin-left: 0; padding: 0.5rem 0; }
-            .table-wrapper { border: none; } table { border: 0; font-size: 0.9em; }
-            table thead { border: none; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; }
-            table tr { border: 1px solid var(--border-color); border-radius: 8px; display: block; margin-bottom: 1.2rem; box-shadow: 0 2px 4px var(--shadow-color); }
-            table td { display: block; text-align: right; border-bottom: 1px solid #f0f0f0; padding: 0.8rem 1rem; }
-            table td::before { content: attr(data-label); float: left; font-weight: bold; text-transform: uppercase; }
-            table td:last-child { border-bottom: 0; }
-            .actions { text-align: right; padding-top: 1rem; } .actions button, .actions .btn { display: inline-block; width: auto; margin-top: 0.5rem; }
+            #app { padding: 10px; }
+            .navbar { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.5rem; }
+            .navbar .nav-links { width: 100%; flex-direction: column; gap: 0.5rem; }
+            .navbar .nav-links a { width: 100%; display: block; padding: 0.8rem; border-radius: 8px; background: #f9fafb; }
+            .navbar .nav-links a.active { background: #eff6ff; }
+            
+            /* 移动端表格卡片化 */
+            .table-wrapper table, .table-wrapper thead, .table-wrapper tbody, .table-wrapper th, .table-wrapper td, .table-wrapper tr { display: block; }
+            .table-wrapper thead tr { position: absolute; top: -9999px; left: -9999px; }
+            .table-wrapper tr { margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; padding: 1rem; box-shadow: var(--shadow-sm); }
+            .table-wrapper td { border: none; position: relative; padding-left: 50%; text-align: right; padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .table-wrapper td:before { position: absolute; top: 0.5rem; left: 0; width: 45%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: bold; content: attr(data-label); color: var(--text-secondary); }
+            .actions { text-align: right; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--bg-color); }
         }
     </style>
 </head>
 <body>
     <div id="app"></div>
     <div id="modal-container" class="hidden"></div>
+    <!-- 脚本逻辑保持不变，直接引用之前的代码 -->
     <script>
         const app = document.getElementById('app');
         const modalContainer = document.getElementById('modal-container');
@@ -86,7 +323,6 @@
         const apiRequest = async (endpoint, method = 'GET', body = null) => { const { token } = auth.get(); if (!token && !endpoint.startsWith('/login') && !endpoint.startsWith('/register')) { router.navigate('/login'); throw new Error('Not authenticated'); } const headers = { 'Content-Type': 'application/json' }; if (token) headers['Authorization'] = `Bearer ${token}`; const options = { method, headers }; if (body) options.body = JSON.stringify(body); const response = await fetch(`${apiBase}${endpoint}`, options); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `HTTP ${response.status}`); } return response.status === 204 ? null : response.json(); };
         const renderNavbar = () => { const { user } = auth.get(); const currentPath = window.location.hash || '#/'; const navLinks = [auth.isLoggedIn() && { path: '#/', text: '小说中心' }, auth.isAdmin() && { path: '#/admin', text: '管理面板' }, auth.isLoggedIn() ? { path: '#/logout', text: `登出 (${user?.username})` } : { path: '#/login', text: '登录' }].filter(Boolean); return `<div class="navbar"><a href="#/" class="logo">我的导航站</a><div class="nav-links">${navLinks.map(l => `<a href="${l.path}" class="${currentPath === l.path ? 'active' : ''}">${l.text}</a>`).join('')}</div></div>`; };
         
-        // --- 修改 renderHomePage ---
         const renderHomePage = async () => { 
             if (!auth.isLoggedIn()) { router.navigate('/login'); return; } 
             app.innerHTML = renderNavbar() + `<div id="announcement-bar"></div><div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"></div></div>`; 
@@ -114,22 +350,21 @@
                         </div>
                     `).join('');
                 } else {
-                    novelsGrid.innerHTML = '<p>书库为空。</p>';
+                    novelsGrid.innerHTML = '<p style="color:var(--text-secondary);">书库为空。</p>';
                 }
             } catch (error) { 
                 document.getElementById('novels-grid').innerHTML = `<p style="color:red;">加载书库失败: ${error.message}</p>`; 
             } 
         };
-        // --- 修改结束 ---
 
-        const renderAuthPage = (page = 'login') => { app.innerHTML = `<div class="form-container"><div class="auth-tabs"><a href="#/login" class="${page === 'login' ? 'active' : ''}">登录</a><a href="#/register" class="${page === 'register' ? 'active' : ''}">注册</a></div><div class="form-content">${page === 'login' ? `<form id="login-form"><h2>登录</h2><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div><button type="submit" class="btn btn-primary" style="width:100%;">登录</button></form>` : `<form id="register-form"><h2>注册</h2><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required></div><button type="submit" class="btn btn-primary" style="width:100%;">注册</button></form>`}</div></div>`; document.getElementById(page === 'login' ? 'login-form' : 'register-form').onsubmit = page === 'login' ? handleLogin : handleRegister; };
-        const renderAdminPage = async () => { if (!auth.isAdmin()) { router.navigate('/'); return; } app.innerHTML = renderNavbar() + `<div class="admin-section"><h2>统一站点管理</h2><button class="btn btn-primary add-btn" onclick="showSiteModal()">+ 添加新站点</button><div class="table-wrapper"><table><thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead><tbody id="sites-table"></tbody></table></div></div><div class="admin-section"><h2>用户管理</h2><div class="table-wrapper"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users-table"></tbody></table></div></div><div class="admin-section"><h2>发布公告</h2><form id="global-announcement-form"><div class="form-group"><label for="global-announcement">向所有用户发送公告</label><textarea id="global-announcement" rows="3" required></textarea></div><button type="submit" class="btn btn-primary">发布</button></form></div>`; loadAdminData(); document.getElementById('global-announcement-form').onsubmit = handleSendGlobalAnnouncement; };
+        const renderAuthPage = (page = 'login') => { app.innerHTML = `<div class="form-container"><div class="auth-tabs"><a href="#/login" class="${page === 'login' ? 'active' : ''}">登录</a><a href="#/register" class="${page === 'register' ? 'active' : ''}">注册</a></div><div class="form-content">${page === 'login' ? `<form id="login-form"><h2>欢迎回来</h2><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required placeholder="请输入用户名"></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required placeholder="请输入密码"></div><button type="submit" class="btn btn-primary" style="width:100%;">登录</button></form>` : `<form id="register-form"><h2>创建账户</h2><div class="form-group"><label for="username">用户名</label><input type="text" id="username" required placeholder="设置用户名"></div><div class="form-group"><label for="password">密码</label><input type="password" id="password" required placeholder="设置密码"></div><button type="submit" class="btn btn-primary" style="width:100%;">注册</button></form>`}</div></div>`; document.getElementById(page === 'login' ? 'login-form' : 'register-form').onsubmit = page === 'login' ? handleLogin : handleRegister; };
+        const renderAdminPage = async () => { if (!auth.isAdmin()) { router.navigate('/'); return; } app.innerHTML = renderNavbar() + `<div class="admin-section"><h2>统一站点管理</h2><button class="btn btn-primary add-btn" onclick="showSiteModal()">+ 添加新站点</button><div class="table-wrapper"><table><thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead><tbody id="sites-table"></tbody></table></div></div><div class="admin-section"><h2>用户管理</h2><div class="table-wrapper"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users-table"></tbody></table></div></div><div class="admin-section"><h2>发布公告</h2><form id="global-announcement-form"><div class="form-group"><label for="global-announcement">向所有用户发送公告</label><textarea id="global-announcement" rows="3" required placeholder="输入公告内容..."></textarea></div><button type="submit" class="btn btn-primary">发布</button></form></div>`; loadAdminData(); document.getElementById('global-announcement-form').onsubmit = handleSendGlobalAnnouncement; };
         const loadAdminData = async () => {
             const sitesTable = document.getElementById('sites-table');
             const usersTable = document.getElementById('users-table');
-            sitesTable.innerHTML = '<tr><td colspan="4">加载中...</td></tr>';
-            usersTable.innerHTML = '<tr><td colspan="4">加载中...</td></tr>';
-            try { const [sites, users] = await Promise.all([apiRequest('/sites'), apiRequest('/users')]); sitesTable.innerHTML = sites.map(s => `<tr><td data-label="名称">${s.name}</td><td data-label="子域名">${s.subdomain}</td><td data-label="类型">${s.type}</td><td data-label="操作" class="actions"><button class="btn" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button><button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button></td></tr>`).join(''); usersTable.innerHTML = users.map(u => `<tr><td data-label="用户名">${u.username}</td><td data-label="角色">${u.role}</td><td data-label="状态" style="color:${u.status === 'banned' ? 'red':'green'}">${u.status}</td><td data-label="操作" class="actions"><button class="btn" onclick='showUserPasswordModal(${u.id})'>改密</button><button class="btn ${u.status === 'active' ? 'btn-danger':''}" onclick='handleUserStatusChange(${u.id}, "${u.status==='active'?'banned':'active'}")'>${u.status==='active'?'封禁':'解封'}</button><button class="btn" onclick='handleUserRoleChange(${u.id}, "${u.role==='user'?'admin':'user'}")'>${u.role==='user'?'设为管理':'取消管理'}</button><button class="btn" onclick='showUserAnnounceModal(${u.id})'>私信</button><button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button></td></tr>`).join(''); } catch (error) { sitesTable.innerHTML = `<tr><td colspan="4" style="color:red;">加载站点失败: ${error.message}</td></tr>`; usersTable.innerHTML = `<tr><td colspan="4" style="color:red;">加载用户失败: ${error.message}</td></tr>`; } };
+            sitesTable.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">加载中...</td></tr>';
+            usersTable.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">加载中...</td></tr>';
+            try { const [sites, users] = await Promise.all([apiRequest('/sites'), apiRequest('/users')]); sitesTable.innerHTML = sites.map(s => `<tr><td data-label="名称">${s.name}</td><td data-label="子域名">${s.subdomain}</td><td data-label="类型"><span style="padding:4px 8px;border-radius:4px;background:#e0f2fe;color:#0369a1;font-size:0.85em;">${s.type}</span></td><td data-label="操作" class="actions"><button class="btn btn-outline" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button><button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button></td></tr>`).join(''); usersTable.innerHTML = users.map(u => `<tr><td data-label="用户名">${u.username}</td><td data-label="角色">${u.role}</td><td data-label="状态"><span style="padding:4px 8px;border-radius:4px;background:${u.status==='active'?'#dcfce7':'#fee2e2'};color:${u.status==='active'?'#15803d':'#b91c1c'};font-size:0.85em;">${u.status}</span></td><td data-label="操作" class="actions"><button class="btn btn-outline" onclick='showUserPasswordModal(${u.id})'>改密</button><button class="btn ${u.status === 'active' ? 'btn-danger':'btn-primary'}" onclick='handleUserStatusChange(${u.id}, "${u.status==='active'?'banned':'active'}")'>${u.status==='active'?'封禁':'解封'}</button><button class="btn btn-outline" onclick='handleUserRoleChange(${u.id}, "${u.role==='user'?'admin':'user'}")'>${u.role==='user'?'设为管理':'取消管理'}</button><button class="btn btn-outline" onclick='showUserAnnounceModal(${u.id})'>私信</button><button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button></td></tr>`).join(''); } catch (error) { sitesTable.innerHTML = `<tr><td colspan="4" style="color:red;">加载站点失败: ${error.message}</td></tr>`; usersTable.innerHTML = `<tr><td colspan="4" style="color:red;">加载用户失败: ${error.message}</td></tr>`; } };
         const handleLogin = async (e) => { e.preventDefault(); const username = e.target.username.value, password = e.target.password.value; try { const data = await apiRequest('/login', 'POST', { username, password }); auth.set(data.token, data.user); router.navigate('/'); } catch (error) { alert(`登录失败: ${error.message}`); } };
         const handleRegister = async (e) => { e.preventDefault(); const username = e.target.username.value, password = e.target.password.value; try { const data = await apiRequest('/register', 'POST', { username, password }); alert(data.message); router.navigate('/login'); } catch (error) { alert(`注册失败: ${error.message}`); } };
         const handleSaveSite = async () => { try { const id = document.getElementById('site-id').value; const body = { name: document.getElementById('site-name').value, subdomain: document.getElementById('site-subdomain').value, type: document.getElementById('site-type').value, author: document.getElementById('site-author').value, description: document.getElementById('site-description').value }; if (id) await apiRequest(`/sites/${id}`, 'PUT', body); else await apiRequest('/sites', 'POST', body); hideModal(); loadAdminData(); } catch (e) { alert(`保存失败: ${e.message}`); } };
@@ -144,9 +379,9 @@
         const handleSendPrivateAnnouncement = async (id) => { const content = document.getElementById('private-announce').value; if(content) try { await apiRequest('/announcements', 'POST', {userId: id, content}); hideModal(); alert('私信已发送'); } catch(e){ alert(`发送失败: ${e.message}`); }};
         const showModal = (title, content, footer) => { modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal"><div class="modal-header"><h3>${title}</h3><button onclick="hideModal()" style="border:none;background:transparent;font-size:1.5rem;cursor:pointer;">&times;</button></div><div class="modal-body">${content}</div><div class="modal-footer">${footer}</div></div></div>`; modalContainer.classList.remove('hidden'); };
         const hideModal = () => modalContainer.classList.add('hidden');
-        const showSiteModal = (site = null) => { const isEdit = site !== null; const title = isEdit ? '编辑站点' : '添加新站点'; const content = `<form id="site-form"><input type="hidden" id="site-id" value="${site?.id || ''}"><div class="form-group"><label for="site-name">名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div><div class="form-group"><label for="site-subdomain">子域名</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div><div class="form-group"><label for="site-type">类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>链接</option></select></div><div class="form-group"><label for="site-author">作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div><div class="form-group"><label for="site-description">简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div></form>`; const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`; showModal(title, content, footer); };
-        const showUserPasswordModal = (id) => { const content = `<form><div class="form-group"><label for="new-pass">新密码</label><input type="password" id="new-pass" required></div></form>`; const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">修改</button>`; showModal('修改用户密码', content, footer); };
-        const showUserAnnounceModal = (id) => { const content = `<form><div class="form-group"><label for="private-announce">私信内容</label><textarea id="private-announce" rows="3" required></textarea></div></form>`; const footer = `<button class="btn" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`; showModal('发送私信', content, footer); };
+        const showSiteModal = (site = null) => { const isEdit = site !== null; const title = isEdit ? '编辑站点' : '添加新站点'; const content = `<form id="site-form"><input type="hidden" id="site-id" value="${site?.id || ''}"><div class="form-group"><label for="site-name">名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div><div class="form-group"><label for="site-subdomain">子域名</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div><div class="form-group"><label for="site-type">类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>链接</option></select></div><div class="form-group"><label for="site-author">作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div><div class="form-group"><label for="site-description">简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div></form>`; const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`; showModal(title, content, footer); };
+        const showUserPasswordModal = (id) => { const content = `<form><div class="form-group"><label for="new-pass">新密码</label><input type="password" id="new-pass" required></div></form>`; const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">修改</button>`; showModal('修改用户密码', content, footer); };
+        const showUserAnnounceModal = (id) => { const content = `<form><div class="form-group"><label for="private-announce">私信内容</label><textarea id="private-announce" rows="3" required></textarea></div></form>`; const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`; showModal('发送私信', content, footer); };
         const router = { routes: { '/': renderHomePage, '/login': () => renderAuthPage('login'), '/register': () => renderAuthPage('register'), '/admin': renderAdminPage, '/logout': () => { auth.clear(); router.navigate('/login'); } }, navigate(path) { window.location.hash = path; }, handler() { const path = (window.location.hash.replace('#', '') || '/').split('?')[0]; (this.routes[path] || this.routes['/'])(); } };
         const main = () => { auth.init(); window.addEventListener('hashchange', () => router.handler()); router.handler(); };
         main();
