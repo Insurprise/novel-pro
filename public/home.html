@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的书库 - 管理中心</title>
+    <style>
+        :root { --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --danger: #ef4444; }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+        .hidden { display: none !important; }
+        
+        /* Navbar */
+        .navbar { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--primary); text-decoration: none; }
+        .nav-actions { display: flex; gap: 1rem; align-items: center; }
+        .user-badge { font-size: 0.9rem; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 20px; }
+        
+        /* Content */
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .section-title { font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--card); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #c7d2fe; }
+        .card h3 { margin: 0 0 0.5rem 0; font-size: 1.2rem; }
+        .card p { color: #64748b; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+        
+        /* Buttons */
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; text-decoration: none; display: inline-block; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: #fee2e2; color: var(--danger); }
+        .btn-outline { background: transparent; border: 1px solid #cbd5e1; color: var(--text); }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+        
+        /* Modal */
+        .modal-mask { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(4px); }
+        .modal { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 450px; animation: popIn 0.3s ease; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal h3 { margin-top: 0; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.7rem; border: 2px solid #e2e8f0; border-radius: 10px; }
+        
+        /* Admin Table */
+        .admin-panel { background: white; border-radius: 16px; padding: 2rem; border: 1px solid #e2e8f0; margin-top: 2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th { text-align: left; background: #f8fafc; padding: 1rem; font-size: 0.85rem; color: #64748b; text-transform: uppercase; }
+        td { padding: 1rem; border-top: 1px solid #f1f5f9; }
+        
+        @media(max-width: 600px) {
+            .navbar { padding: 1rem; }
+            .nav-actions span { display: none; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
+            tr { margin-bottom: 1rem; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem; }
+            td { padding: 0.5rem 0; border: none; display: flex; justify-content: space-between; }
+            td:before { content: attr(data-label); font-weight: bold; color: #64748b; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 校验逻辑：必须放在最前面 -->
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = 'index.html'; }
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+    </script>
+
+    <div class="navbar">
+        <a href="#" class="logo">📚 私人书库</a>
+        <div class="nav-actions">
+            <span class="user-badge" id="user-display">User</span>
+            <button class="btn btn-outline btn-sm" onclick="showPasswordModal()">改密</button>
+            <button class="btn btn-danger btn-sm" onclick="logout()">退出</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 书库区域 -->
+        <div class="section-title">
+            <span>我的藏书</span>
+        </div>
+        <div id="novels-grid" class="grid">
+            <p>正在加载书库...</p>
+        </div>
+
+        <!-- 管理员区域 (默认隐藏) -->
+        <div id="admin-area" class="hidden">
+            <div class="admin-panel">
+                <div class="section-title">
+                    <span>用户管理</span>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateUserModal()">+ 新增用户</button>
+                </div>
+                <p style="color:#64748b; font-size:0.9rem; margin-bottom:1rem;">说明：只有管理员可以在此处注册新用户。</p>
+                <table>
+                    <thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
+                    <tbody id="users-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗容器 -->
+    <div id="modal-container" class="hidden modal-mask"></div>
+
+    <script>
+        const getApiBase = () => {
+            const host = window.location.hostname;
+            if (host.includes('novel-pro.505616.xyz')) return 'https://novel-pro.505616.xyz/api';
+            if (host.includes('novel-pro.zzsp.me')) return 'https://novel-pro.zzsp.me/api';
+            return '/api';
+        };
+        const apiBase = getApiBase();
+
+        // 显示用户信息
+        document.getElementById('user-display').textContent = user.username || 'User';
+        
+        // 如果是管理员，显示后台
+        if (user.role === 'admin') {
+            document.getElementById('admin-area').classList.remove('hidden');
+            loadUsers();
+        }
+
+        // 登出
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // API 请求封装
+        async function api(endpoint, method = 'GET', body = null) {
+            const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+            const opts = { method, headers };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(`${apiBase}${endpoint}`, opts);
+            if (res.status === 401) logout();
+            if (!res.ok) {
+                const err = await res.json().catch(()=>{});
+                throw new Error(err.error || '请求失败');
+            }
+            return res.status === 204 ? null : res.json();
+        }
+
+        // 加载小说
+        async function loadNovels() {
+            try {
+                const novels = await api('/sites?type=novel');
+                const grid = document.getElementById('novels-grid');
+                if (novels.length === 0) {
+                    grid.innerHTML = '<p style="color:#94a3b8">暂无书籍。</p>';
+                    return;
+                }
+                
+                // 动态小说域名
+                const host = window.location.hostname;
+                let novelDomain = '20100505.xyz';
+                if (host.includes('505616.xyz')) novelDomain = '505616.xyz';
+                else if (host.includes('zzsp.me')) novelDomain = 'zzsp.me';
+
+                grid.innerHTML = novels.map(n => `
+                    <div class="card">
+                        <h3>${n.name}</h3>
+                        <p>${n.description || '暂无简介'}</p>
+                        <a href="https://${n.subdomain}.${novelDomain}" target="_blank" class="btn btn-primary" style="width:100%">开始阅读</a>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('novels-grid').innerHTML = `<p style="color:red">加载失败: ${e.message}</p>`;
+            }
+        }
+
+        // 加载用户 (Admin)
+        async function loadUsers() {
+            try {
+                const users = await api('/users');
+                const tbody = document.getElementById('users-table');
+                tbody.innerHTML = users.map(u => `
+                    <tr>
+                        <td data-label="用户名">${u.username}</td>
+                        <td data-label="角色">${u.role}</td>
+                        <td data-label="状态">${u.status}</td>
+                        <td data-label="操作">
+                            ${u.username !== user.username ? `
+                            <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">删除</button>
+                            ` : '<span style="color:#cbd5e1">你自己</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        // 模态框逻辑
+        function showModal(html) {
+            const c = document.getElementById('modal-container');
+            c.innerHTML = html;
+            c.classList.remove('hidden');
+        }
+        function hideModal() { document.getElementById('modal-container').classList.add('hidden'); }
+
+        // 修改密码模态框
+        function showPasswordModal() {
+            showModal(`
+                <div class="modal">
+                    <h3>修改密码</h3>
+                    <div class="form-group"><label>新密码</label><input type="password" id="new-pwd"></div>
+                    <div style="display:flex; gap:1rem; justify-content:flex-end;">
+                        <button class="btn btn-outline" onclick="hideModal()">取消</button>
+                        <button class="btn btn-primary" onclick="changePassword()">确认</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        async function changePassword() {
+            const pwd = document.getElementById('new-pwd').value;
+            if(!pwd) return alert('密码不能为空');
+            try {
+                await api(`/users/${user.id}/password`, 'PUT', { password: pwd });
+                alert('密码修改成功，请重新登录');
+                logout();
+            } catch(e) { alert(e.message); }
+        }
+
+        // 创建用户模态框 (Admin)
+        function showCreateUserModal() {
+            showModal(`
+                <div class="modal">
+                    <h3>注册新用户</h3>
+                    <div class="form-group"><label>用户名</label><input type="text" id="c-user"></div>
+                    <div class="form-group"><label>密码</label><input type="password" id="c-pwd"></div>
+                    <div class="form-group"><label>角色</label><select id="c-role"><option value="user">普通用户</option><option value="admin">管理员</option></select></div>
+                    <div style="display:flex; gap:1rem; justify-content:flex-end;">
+                        <button class="btn btn-outline" onclick="hideModal()">取消</button>
+                        <button class="btn btn-primary" onclick="createUser()">创建</button>
+                    </div>
+                </div>
+            `);
+        }
+
+        async function createUser() {
+            const u = document.getElementById('c-user').value;
+            const p = document.getElementById('c-pwd').value;
+            const r = document.getElementById('c-role').value;
+            try {
+                await api('/users', 'POST', { username: u, password: p, role: r });
+                alert('用户创建成功');
+                hideModal();
+                loadUsers();
+            } catch(e) { alert(e.message); }
+        }
+
+        async function deleteUser(id) {
+            if(!confirm('确定删除此用户吗？')) return;
+            try {
+                await api(`/users/${id}`, 'DELETE');
+                loadUsers();
+            } catch(e) { alert(e.message); }
+        }
+
+        loadNovels();
+    </script>
+</body>
+</html>
