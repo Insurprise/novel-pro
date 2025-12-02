@@ -243,7 +243,6 @@
 <body>
     <!-- 权限门禁：必须放在最前面 -->
     <script>
-        // 如果没有 Token，直接踢回纯登录页 index.html
         if (!localStorage.getItem('token')) {
             window.location.replace('index.html');
         }
@@ -261,6 +260,7 @@
             const host = window.location.hostname;
             if (host.includes('novel-pro.505616.xyz')) return 'https://novel-pro.505616.xyz/api';
             if (host.includes('novel-pro.zzsp.me')) return 'https://novel-pro.zzsp.me/api';
+            if (host.includes('www.620100.xyz')) return 'https://www.620100.xyz/api'; // 新域名
             return '/api';
         };
         const apiBase = getApiBase();
@@ -277,13 +277,12 @@
             logout() { 
                 localStorage.removeItem('token'); 
                 localStorage.removeItem('user'); 
-                window.location.href = 'index.html'; // 登出跳回登录页
+                window.location.href = 'index.html';
             }
         };
 
         const apiRequest = async (endpoint, method = 'GET', body = null) => { 
             const { token } = auth.get(); 
-            // 如果 token 没了，踢回登录页
             if (!token) { window.location.href = 'index.html'; throw new Error('Auth needed'); } 
             
             const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; 
@@ -292,7 +291,7 @@
             
             const response = await fetch(`${apiBase}${endpoint}`, options); 
             
-            if (response.status === 401) { auth.logout(); return; } // Token 过期处理
+            if (response.status === 401) { auth.logout(); return; } 
             
             if (!response.ok) { 
                 const errorData = await response.json().catch(() => ({})); 
@@ -306,6 +305,7 @@
              const host = window.location.hostname;
              if (host.includes('novel-pro.505616.xyz')) return '505616.xyz';
              if (host.includes('novel-pro.zzsp.me')) return 'zzsp.me';
+             if (host.includes('www.620100.xyz')) return '620100.xyz'; // 新域名适配
              return '20100505.xyz';
         };
 
@@ -375,7 +375,6 @@
                 
                 <div class="admin-section">
                     <h2>用户管理
-                        <!-- 管理员特有：注册新用户按钮 -->
                         <button class="btn btn-primary" style="font-size:0.85rem;" onclick="showCreateUserModal()">+ 注册用户</button>
                     </h2>
                     <div class="table-wrapper">
@@ -486,7 +485,6 @@
         const handleSendGlobalAnnouncement = async (e) => { e.preventDefault(); const content = document.getElementById('global-announcement').value; if(content) try { await apiRequest('/announcements', 'POST', {isGlobal: true, content}); document.getElementById('global-announcement').value=''; alert('全局公告已发布'); } catch(e){ alert(e.message); }};
         const handleSendPrivateAnnouncement = async (id) => { const content = document.getElementById('private-announce').value; if(content) try { await apiRequest('/announcements', 'POST', {userId: id, content}); hideModal(); alert('私信已发送'); } catch(e){ alert(e.message); }};
 
-        // --- Create User (Admin Only) ---
         const handleCreateUser = async () => {
             const u = document.getElementById('create-username').value;
             const p = document.getElementById('create-password').value;
