@@ -1,14 +1,16 @@
 /* =================================================================
- * Cloudflare Worker Backend (v17.0.0 - Secure Logic)
- * 核心变更：
- * 1. 移除了公开注册接口 (Public Register)
- * 2. 增加了 Admin 创建用户接口 (POST /users)
- * 3. 完善了修改密码权限 (PUT /users/:id/password)
+ * Cloudflare Worker Backend (v18.0.0 - Full Feature Set)
+ * 支持:
+ * 1. 登录 (POST /login)
+ * 2. 站点管理 (CRUD /sites)
+ * 3. 用户管理 (GET /users, DELETE /users/:id, PUT /users/:id/...)
+ * 4. 管理员创建用户 (POST /users)
+ * 5. 公告/私信 (POST /announcements)
+ * 6. 移除了公开注册接口
  * ================================================================= */
 
 const ROOT_ADMIN_ID = 1;
 
-// --- Helper: CORS & Response ---
 const handleOptions = (request) => { 
     const origin = request.headers.get("Origin") || "*"; 
     const headers = { 
@@ -30,7 +32,6 @@ const jsonResponse = (data, status = 200, request) => {
     return new Response(JSON.stringify(data, null, 2), { status, headers }); 
 };
 
-// --- Helper: Auth & Crypto ---
 async function hashPassword(password) { 
     const utf8 = new TextEncoder().encode(password); 
     const hashBuffer = await crypto.subtle.digest('SHA-256', utf8); 
@@ -47,20 +48,18 @@ function getUserFromToken(request) {
     } catch (e) { return null; } 
 }
 
-// --- Main Entry ---
 export async function onRequest(context) { 
     if (context.request.method === 'OPTIONS') return handleOptions(context.request); 
     return handleApiRequest(context); 
 }
 
-// --- API Logic ---
 async function handleApiRequest(context) {
     const { request, env, params } = context;
     const url = new URL(request.url);
     const pathParts = params.path || [];
 
     try {
-        // [Public] 登录
+        // [Public] Login
         if (pathParts[0] === 'login') {
             const { username, password } = await request.json();
             if (!username || !password) return jsonResponse({ error: '请输入用户名和密码' }, 400, request);
@@ -75,23 +74,22 @@ async function handleApiRequest(context) {
             return jsonResponse({ token, user: { id: userDb.id, username: userDb.username, role: userDb.role } }, 200, request);
         }
 
-        // [Middleware] 鉴权
+        // [Auth Check]
         const user = getUserFromToken(request);
-        if (!user || !user.id) return jsonResponse({ error: '未登录或会话过期', status: 401 }, 401, request);
+        if (!user || !user.id) return jsonResponse({ error: 'Session expired', status: 401 }, 401, request);
         const userId = user.id;
         
-        // [API] 用户管理
+        // [API] Users
         if (pathParts[0] === 'users') {
-            // 获取用户列表 (仅管理员)
             if (request.method === 'GET') {
                 if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
-                const { results } = await env.DB.prepare("SELECT id, username, role, status, created_at FROM Users").all();
+                const { results } = await env.DB.prepare("SELECT id, username, role, status FROM Users").all();
                 return jsonResponse(results, 200, request);
             }
 
-            // 【新功能】管理员创建用户 (Admin Create User)
+            // Admin Create User
             if (request.method === 'POST') {
-                if (user.role !== 'admin') return jsonResponse({ error: '只有管理员可以创建用户' }, 403, request);
+                if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
                 const { username, password, role } = await request.json();
                 if (!username || !password) return jsonResponse({ error: '信息不完整' }, 400, request);
                 
@@ -101,54 +99,41 @@ async function handleApiRequest(context) {
                 const phash = await hashPassword(password);
                 const newRole = role === 'admin' ? 'admin' : 'user';
                 await env.DB.prepare("INSERT INTO Users (username, password_hash, role, status) VALUES (?, ?, ?, 'active')").bind(username, phash, newRole).run();
-                return jsonResponse({ message: '用户创建成功' }, 201, request);
+                return jsonResponse({ message: 'Created' }, 201, request);
             }
 
-            // 修改用户 (密码/状态/角色)
             if (request.method === 'PUT' && pathParts[1]) {
                 const targetId = parseInt(pathParts[1]);
                 const action = pathParts[2]; 
                 const body = await request.json();
 
-                // 修改密码: 允许用户改自己，或管理员改任何人
                 if (action === 'password') {
                     if (targetId !== userId && user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
                     if (!body.password) return jsonResponse({ error: '密码不能为空' }, 400, request);
-                    
                     const phash = await hashPassword(body.password);
                     await env.DB.prepare("UPDATE Users SET password_hash = ? WHERE id = ?").bind(phash, targetId).run();
-                    return jsonResponse({ message: '密码修改成功' }, 200, request);
+                    return jsonResponse({ message: 'Success' }, 200, request);
                 } 
                 
-                // 修改状态/角色: 仅管理员
                 if (action === 'status' || action === 'role') {
                     if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
-                    if (targetId === ROOT_ADMIN_ID) return jsonResponse({ error: '无法修改根管理员' }, 403, request); // 保护机制
-
+                    if (targetId === ROOT_ADMIN_ID) return jsonResponse({ error: '无法修改根管理员' }, 403, request);
                     if (action === 'status') await env.DB.prepare("UPDATE Users SET status = ? WHERE id = ?").bind(body.status, targetId).run();
                     if (action === 'role') await env.DB.prepare("UPDATE Users SET role = ? WHERE id = ?").bind(body.role, targetId).run();
-                    
-                    return jsonResponse({ message: '更新成功' }, 200, request);
+                    return jsonResponse({ message: 'Success' }, 200, request);
                 }
             }
             
-            // 删除用户 (仅管理员)
             if (request.method === 'DELETE' && pathParts[1]) {
                 if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
                 const targetId = parseInt(pathParts[1]);
                 if (targetId === ROOT_ADMIN_ID || targetId === userId) return jsonResponse({ error: '无法删除该账户' }, 403, request);
-                
-                await env.DB.batch([
-                    env.DB.prepare("DELETE FROM FavoriteChapters WHERE user_id = ?").bind(targetId),
-                    env.DB.prepare("DELETE FROM ReadingRecords WHERE user_id = ?").bind(targetId),
-                    env.DB.prepare("DELETE FROM Announcements WHERE user_id = ?").bind(targetId),
-                    env.DB.prepare("DELETE FROM Users WHERE id = ?").bind(targetId)
-                ]);
-                return jsonResponse({ message: '用户已删除' }, 200, request);
+                await env.DB.prepare("DELETE FROM Users WHERE id = ?").bind(targetId).run();
+                return jsonResponse({ message: 'Deleted' }, 200, request);
             }
         }
 
-        // [API] 站点管理
+        // [API] Sites
         if (pathParts[0] === 'sites') { 
              if (request.method === 'GET') { 
                 const type = url.searchParams.get('type'); 
@@ -156,18 +141,16 @@ async function handleApiRequest(context) {
                 const { results } = await stmt.all(); 
                 return jsonResponse(results, 200, request); 
             } 
-            // 增删改需管理员
             if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request); 
-            
             if (request.method === 'POST') { 
                 const d = await request.json(); 
                 await env.DB.prepare("INSERT INTO Sites (name, subdomain, type, author, description) VALUES (?, ?, ?, ?, ?)").bind(d.name, d.subdomain, d.type, d.author, d.description).run(); 
-                return jsonResponse({ message: '创建成功' }, 201, request); 
+                return jsonResponse({ message: 'Success' }, 201, request); 
             } 
             if (request.method === 'PUT' && pathParts[1]) { 
                 const d = await request.json(); 
                 await env.DB.prepare("UPDATE Sites SET name=?, subdomain=?, type=?, author=?, description=? WHERE id=?").bind(d.name, d.subdomain, d.type, d.author, d.description, pathParts[1]).run(); 
-                return jsonResponse({ message: '更新成功' }, 200, request); 
+                return jsonResponse({ message: 'Success' }, 200, request); 
             } 
             if (request.method === 'DELETE' && pathParts[1]) { 
                 await env.DB.prepare("DELETE FROM Sites WHERE id = ?").bind(pathParts[1]).run(); 
@@ -175,7 +158,7 @@ async function handleApiRequest(context) {
             } 
         }
 
-        // [API] 阅读进度
+        // [API] Progress
         if (pathParts[0] === 'progress') {
             if (request.method === 'POST') {
                 const { novel_id, chapter_id, position } = await request.json();
@@ -189,25 +172,19 @@ async function handleApiRequest(context) {
             }
         }
 
-        // [API] 公告
+        // [API] Announcements
         if (pathParts[0] === 'announcements') { 
             if (request.method === 'GET') { 
                 const { results } = await env.DB.prepare("SELECT id, content FROM Announcements WHERE user_id = ? AND is_read = 0 ORDER BY created_at DESC").bind(userId).all(); 
                 return jsonResponse(results, 200, request); 
             } 
-            if (request.method === 'PUT' && pathParts[1] === 'read') { // Fix route parsing logic if needed, assumed announcements/:id/read
-                 // Actually pathParts would be ['announcements', '123', 'read']
-                 // Let's implement generically below
-            }
             if (request.method === 'PUT' && pathParts[2] === 'read') {
                  await env.DB.prepare("UPDATE Announcements SET is_read = 1 WHERE id = ? AND user_id = ?").bind(pathParts[1], userId).run(); 
                  return jsonResponse(null, 204, request);
             }
-
             if (request.method === 'POST') {
                 if (user.role !== 'admin') return jsonResponse({ error: '无权操作' }, 403, request);
                 const { userId: targetUid, content, isGlobal } = await request.json();
-                
                 if (isGlobal) {
                     const allUsers = await env.DB.prepare("SELECT id FROM Users").all();
                     const stmt = env.DB.prepare("INSERT INTO Announcements (user_id, content, is_read) VALUES (?, ?, 0)");
@@ -216,12 +193,11 @@ async function handleApiRequest(context) {
                 } else if (targetUid) {
                     await env.DB.prepare("INSERT INTO Announcements (user_id, content, is_read) VALUES (?, ?, 0)").bind(targetUid, content).run();
                 }
-                return jsonResponse({ message: '公告已发送' }, 201, request);
+                return jsonResponse({ message: 'Sent' }, 201, request);
             }
         }
 
-        return jsonResponse({ error: `Not Found: ${url.pathname}` }, 404, request);
-
+        return jsonResponse({ error: `Not Found` }, 404, request);
     } catch (e) {
         return jsonResponse({ error: 'Server Error', details: e.message }, 500, request);
     }
