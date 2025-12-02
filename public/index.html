@@ -2,615 +2,84 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的私人导航站</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 私人导航站</title>
     <style>
-        :root {
-            --primary-color: #4f46e5; /* Indigo 600 */
-            --primary-hover: #4338ca; /* Indigo 700 */
-            --bg-color: #f8fafc;      /* Slate 50 */
-            --card-bg: #ffffff;
-            --text-main: #1e293b;     /* Slate 800 */
-            --text-secondary: #64748b; /* Slate 500 */
-            --border-color: #e2e8f0;  /* Slate 200 */
-            --danger-color: #ef4444;  /* Red 500 */
-            --success-color: #10b981; /* Emerald 500 */
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            --radius: 16px;
-        }
-
-        /* 全局盒模型，防止UI溢出 */
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        #app {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px;
-            min-height: 100vh;
-        }
-
-        /* --- 导航栏 (电脑端保持悬浮毛玻璃) --- */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 1rem 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2.5rem;
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            border: 1px solid rgba(255,255,255,0.6);
-            transition: box-shadow 0.3s ease;
-        }
-        .navbar:hover {
-            box-shadow: var(--shadow-md);
-        }
-        .navbar .logo {
-            font-size: 2rem;
-            font-weight: 800;
-            text-decoration: none;
-            background: linear-gradient(135deg, var(--primary-color), #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-        .navbar .nav-links { display: flex; gap: 1.5rem; }
-        .navbar .nav-links a {
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 0.95rem;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-        }
-        .navbar .nav-links a:hover {
-            color: var(--primary-color);
-            background-color: #e0e7ff;
-        }
-        .navbar .nav-links a.active {
-            color: var(--primary-color);
-            background-color: #eef2ff;
-        }
-
-        /* --- 按钮 (精致) --- */
-        .btn {
-            padding: 0.7rem 1.4rem;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.95rem;
-            letter-spacing: 0.01em;
-        }
-        .btn:active { transform: scale(0.96); }
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); 
-            color: white; 
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-        }
-        .btn-primary:hover { 
-            box-shadow: 0 6px 10px -1px rgba(79, 70, 229, 0.3); 
-            transform: translateY(-1px);
-        }
-        .btn-danger { 
-            background-color: #fee2e2; 
-            color: var(--danger-color); 
-            border: 1px solid transparent;
-        }
-        .btn-danger:hover { 
-            background-color: #fecaca; 
-            border-color: #fca5a5;
-        }
-        .btn-outline { 
-            background: transparent; 
-            border: 1px solid var(--border-color); 
-            color: var(--text-main); 
-        }
-        .btn-outline:hover { 
-            border-color: var(--text-secondary); 
-            background: #f8fafc; 
-        }
-
-        h2 {
-            margin-top: 0;
-            font-size: 1.75rem;
-            color: var(--text-main);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: 800;
-        }
-        h2::before {
-            content: '';
-            display: block;
-            width: 6px;
-            height: 28px;
-            background: linear-gradient(to bottom, var(--primary-color), #a5b4fc);
-            border-radius: 3px;
-        }
-
-        /* --- 内容区块 --- */
-        .content-section, .admin-section {
-            background-color: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: var(--radius);
-            margin-bottom: 2.5rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-            transition: box-shadow 0.3s ease;
-            width: 100%;
-        }
-        .content-section:hover, .admin-section:hover {
-            box-shadow: var(--shadow-md);
-        }
-
-        /* --- 小说卡片 (Grid布局) --- */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-        .novel-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 1.75rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-        .novel-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), #c7d2fe);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .novel-card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-            border-color: #c7d2fe;
-        }
-        .novel-card:hover::before { opacity: 1; }
-
-        .novel-card h3 {
-            margin: 0 0 1.25rem 0;
-            font-size: 1.35rem;
-            color: var(--text-main);
-            font-weight: 700;
-            line-height: 1.3;
-        }
-        
-        /* 折叠样式美化 */
-        .novel-card details {
-            margin-bottom: 1rem;
-            border-radius: 10px;
-            background-color: #f8fafc;
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-        .novel-card details[open] {
-            border-color: #e2e8f0;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .novel-card summary {
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: color 0.2s;
-            outline: none;
-        }
-        .novel-card summary:hover { color: var(--primary-color); }
-        .novel-card summary::-webkit-details-marker { display: none; }
-        
-        .novel-card summary::after { 
-            content: '›'; 
-            font-size: 1.4em; 
-            font-weight: 400; 
-            color: #94a3b8; 
-            transition: transform 0.3s ease;
-            transform-origin: center;
-        }
-        
-        .novel-card details[open] summary::after { 
-            transform: rotate(90deg); 
-            color: var(--primary-color); 
-        }
-        
-        .novel-card .details-content {
-            padding: 0 1rem 1rem 1rem;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            line-height: 1.7;
-            animation: fadeInContent 0.4s ease forwards;
-        }
-        
-        @keyframes fadeInContent {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .novel-card .btn { margin-top: auto; width: 100%; }
-
-        /* --- 表格 (现代) --- */
-        .table-wrapper { 
-            overflow-x: auto; 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color); 
-            box-shadow: var(--shadow-sm);
-            width: 100%;
-        }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        th { 
-            background-color: #f1f5f9; 
-            font-weight: 700; 
-            color: var(--text-secondary); 
-            text-transform: uppercase; 
-            font-size: 0.75rem; 
-            letter-spacing: 0.05em; 
-            padding: 1.2rem 1.5rem; 
-            text-align: left; 
-        }
-        td { 
-            padding: 1.2rem 1.5rem; 
-            border-top: 1px solid var(--border-color); 
-            color: var(--text-main); 
-            background: #fff;
-            transition: background 0.2s;
-        }
-        tr:hover td { background-color: #f8fafc; }
-        .actions button { margin-right: 0.5rem; font-size: 0.85rem; padding: 0.4rem 0.8rem; }
-
-        /* --- 表单 (中心化) --- */
-        .form-container {
-            width: 100%; max-width: 440px; margin: 4rem auto;
-            background: var(--card-bg); border-radius: 24px;
-            box-shadow: var(--shadow-lg); overflow: hidden;
-            border: 1px solid var(--border-color);
-            position: relative;
-        }
-        .form-container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 6px;
-            background: linear-gradient(90deg, var(--primary-color), #818cf8);
-            z-index: 2;
-        }
-        
-        .auth-tabs { 
-            display: flex; 
-            background: #f8fafc;
-            padding: 0;
-            border-bottom: 1px solid var(--border-color); 
-        }
-        .auth-tabs a {
-            flex: 1; 
-            text-align: center; 
-            padding: 1.25rem;
-            text-decoration: none; 
-            color: var(--text-secondary);
-            font-weight: 600; 
-            font-size: 0.95rem; 
-            position: relative;
-            background: transparent;
-            transition: color 0.2s;
-        }
-        .auth-tabs a.active { 
-            color: var(--primary-color); 
-            background: #ffffff; 
-        }
-        .auth-tabs a.active::after {
-            content: ''; 
-            position: absolute; 
-            top: 0;
-            left: 0; 
-            width: 100%; 
-            height: 3px;
-            background: var(--primary-color); 
-            z-index: 3;
-        }
-        
-        .form-content { padding: 3rem 2.5rem; background: #ffffff; }
-        
-        .form-group { margin-bottom: 1.75rem; }
-        label { display: block; margin-bottom: 0.6rem; font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
-        input, select, textarea {
-            width: 100%; padding: 0.9rem 1.1rem; border: 2px solid var(--border-color);
-            border-radius: 12px; box-sizing: border-box; font-size: 1rem;
-            transition: all 0.2s ease; outline: none; background: #f8fafc;
-        }
-        input:focus, select:focus, textarea:focus { 
-            border-color: var(--primary-color); 
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        /* --- 模态框 (精致弹窗) --- */
-        .modal-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(8px);
-            z-index: 1040; display: flex; align-items: center; justify-content: center;
-            opacity: 0; animation: fadeIn 0.3s ease forwards;
-        }
-        @keyframes fadeIn { to { opacity: 1; } }
-        .modal {
-            background: var(--card-bg); padding: 2.5rem; border-radius: 24px;
-            width: 90%; max-width: 520px; box-shadow: var(--shadow-lg);
-            transform: scale(0.9); opacity: 0; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            max-height: 90vh; overflow-y: auto; 
-        }
-        @keyframes popIn { to { transform: scale(1); opacity: 1; } }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .modal-header h3 { margin: 0; font-size: 1.5rem; font-weight: 800; }
-        .modal-footer { margin-top: 2.5rem; text-align: right; display: flex; justify-content: flex-end; gap: 1rem; }
-
-        /* --- 移动端适配 --- */
-        @media (max-width: 768px) {
-            #app { 
-                padding: 0;
-            }
-
-            /* 移动端导航栏置顶，不跟随屏幕 */
-            .navbar { 
-                position: static; 
-                margin: 0; 
-                border-radius: 0; 
-                border: none;
-                border-bottom: 1px solid var(--border-color);
-                flex-direction: column; 
-                align-items: stretch; 
-                gap: 0.5rem;
-                padding: 1rem 1.5rem; 
-                background-color: rgba(255, 255, 255, 0.98);
-            }
-            
-            /* 导航链接优化 - 更大一些 */
-            .navbar .nav-links { 
-                justify-content: space-between; 
-                width: 100%; 
-                gap: 0.5rem; 
-                flex-wrap: nowrap;
-                overflow-x: auto; 
-                padding-bottom: 4px; 
-                -webkit-overflow-scrolling: touch; 
-            }
-            .navbar .nav-links::-webkit-scrollbar {
-                display: none; 
-            }
-            .navbar .nav-links a { 
-                padding: 0.7rem 1.2rem; 
-                background: #f1f5f9; 
-                border-radius: 12px; 
-                font-size: 0.95rem; 
-                white-space: nowrap; 
-                flex-shrink: 0;
-                flex-grow: 1; 
-                text-align: center;
-            }
-            .navbar .nav-links a.active { background: #eef2ff; }
-            
-            .navbar .logo {
-                font-size: 1.8rem; 
-                text-align: left;
-                width: 100%;
-            }
-
-            .content-section, .admin-section {
-                margin: 1rem; 
-                padding: 1.5rem; 
-                width: auto; 
-                border-radius: 16px; 
-            }
-            
-            .card-grid {
-                grid-template-columns: 1fr; 
-                gap: 1.5rem;
-            }
-
-            .form-container {
-                margin: 2rem 1rem;
-                max-width: none;
-                width: auto;
-            }
-
-            .table-wrapper { border: none; overflow: visible; background: transparent; box-shadow: none; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; }
-            tr { 
-                margin-bottom: 1.2rem; border: 1px solid var(--border-color); 
-                border-radius: 16px; background: #fff; padding: 1.25rem; 
-                box-shadow: var(--shadow-sm);
-            }
-            td { 
-                border: none; position: relative; padding-left: 0; text-align: right; 
-                padding-top: 0.5rem; padding-bottom: 0.5rem; 
-                display: flex; justify-content: space-between; align-items: center; 
-            }
-            td:before { 
-                content: attr(data-label); font-weight: 600; color: var(--text-secondary); font-size: 0.9rem;
-            }
-            .actions { 
-                margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid #f1f5f9; 
-                display: flex; justify-content: flex-end; gap: 0.8rem; 
-            }
-            .actions button { margin: 0; flex: 1; }
-            
-            /* 移动端设置按钮变小 */
-            .control-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-        }
-        
-        .hidden { display: none !important; }
+        :root { --primary: #4f46e5; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; color: var(--text); }
+        .login-card { background: white; padding: 2.5rem; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; margin-bottom: 1.5rem; color: var(--primary); }
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        input { width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.2s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        button { width: 100%; padding: 0.8rem; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; font-size: 1rem; }
+        button:hover { opacity: 0.9; }
+        .error { color: #ef4444; text-align: center; margin-top: 1rem; font-size: 0.9rem; display: none; }
+        .footer { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #64748b; }
     </style>
 </head>
 <body>
-    <div id="app"></div>
-    <div id="modal-container" class="hidden"></div>
+    <div class="login-card">
+        <h2>系统登录</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" id="btn-submit">进入系统</button>
+            <div id="error-msg" class="error"></div>
+        </form>
+        <p class="footer">本站为私人站点，不开放注册。<br>如需访问请联系管理员。</p>
+    </div>
+
     <script>
-        const app = document.getElementById('app');
-        const modalContainer = document.getElementById('modal-container');
-        // 动态获取 API 基础地址
         const getApiBase = () => {
             const host = window.location.hostname;
             if (host.includes('novel-pro.505616.xyz')) return 'https://novel-pro.505616.xyz/api';
             if (host.includes('novel-pro.zzsp.me')) return 'https://novel-pro.zzsp.me/api';
-            return '/api'; // 默认回退或开发环境
+            return '/api';
         };
-        const apiBase = getApiBase();
         
-        const auth = { _token: null, _user: null, init() { this._token = localStorage.getItem('token'); this._user = JSON.parse(localStorage.getItem('user')); }, get() { return { token: this._token, user: this._user }; }, set(token, user) { this._token = token; this._user = user; localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user)); }, clear() { this._token = null; this._user = null; localStorage.removeItem('token'); localStorage.removeItem('user'); }, isLoggedIn() { return !!this._token; }, isAdmin() { return this.isLoggedIn() && this._user?.role === 'admin'; } };
-        const apiRequest = async (endpoint, method = 'GET', body = null) => { const { token } = auth.get(); if (!token && !endpoint.startsWith('/login') && !endpoint.startsWith('/register')) { router.navigate('/login'); throw new Error('Not authenticated'); } const headers = { 'Content-Type': 'application/json' }; if (token) headers['Authorization'] = `Bearer ${token}`; const options = { method, headers }; if (body) options.body = JSON.stringify(body); const response = await fetch(`${apiBase}${endpoint}`, options); if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `HTTP ${response.status}`); } return response.status === 204 ? null : response.json(); };
-        const renderNavbar = () => { const { user } = auth.get(); const currentPath = window.location.hash || '#/'; const navLinks = [auth.isLoggedIn() && { path: '#/', text: '书库' }, auth.isAdmin() && { path: '#/admin', text: '管理' }, auth.isLoggedIn() ? { path: '#/logout', text: `登出` } : { path: '#/login', text: '登录' }].filter(Boolean); return `<div class="navbar"><a href="#/" class="logo">我的私人导航站</a><div class="nav-links">${navLinks.map(l => `<a href="${l.path}" class="${currentPath === l.path ? 'active' : ''}">${l.text}</a>`).join('')}</div></div>`; };
-        
-        // 动态生成小说域名
-        const getNovelDomain = () => {
-             const host = window.location.hostname;
-             if (host.includes('novel-pro.505616.xyz')) return '505616.xyz';
-             if (host.includes('novel-pro.zzsp.me')) return 'zzsp.me';
-             return '20100505.xyz';
-        };
+        // 自动检查：如果已经登录，直接跳到内部页
+        if (localStorage.getItem('token')) {
+            window.location.href = 'home.html';
+        }
 
-        const renderHomePage = async () => { 
-            if (!auth.isLoggedIn()) { router.navigate('/login'); return; } 
-            app.innerHTML = renderNavbar() + `<div id="announcement-bar"></div><div class="content-section"><h2>我的书库</h2><div id="novels-grid" class="card-grid"></div></div>`; 
-            fetchAndRenderAnnouncements(); 
-            try { 
-                const novels = await apiRequest('/sites?type=novel'); 
-                const novelDomain = getNovelDomain();
-                document.getElementById('novels-grid').innerHTML = novels.length ? novels.map(n => `
-                    <div class="novel-card">
-                        <h3>${n.name}</h3>
-                        ${n.author ? `
-                        <details>
-                            <summary>作者</summary>
-                            <div class="details-content">${n.author}</div>
-                        </details>` : ''}
-                        ${n.description ? `
-                        <details>
-                            <summary>简介</summary>
-                            <div class="details-content">${n.description}</div>
-                        </details>` : ''}
-                        <a href="https://${n.subdomain}.${novelDomain}" class="btn btn-primary" target="_blank">开始阅读</a>
-                    </div>`).join('') : '<p style="text-align:center;color:#999;width:100%;grid-column:1/-1;padding:2rem;">暂无书籍，请联系管理员添加。</p>'; 
-            } catch (error) { 
-                document.getElementById('novels-grid').innerHTML = `<p style="color:red;text-align:center;">加载失败: ${error.message}</p>`; 
-            } 
-        };
-        
-        const renderAuthPage = (page = 'login') => { 
-            const isLogin = page === 'login';
-            app.innerHTML = `
-            <div class="form-container">
-                <div class="auth-tabs">
-                    <a href="#/login" class="${isLogin ? 'active' : ''}">登录</a>
-                    <a href="#/register" class="${!isLogin ? 'active' : ''}">注册</a>
-                </div>
-                <div class="form-content">
-                    ${isLogin 
-                        ? `<form id="login-form">
-                                <h2>欢迎回来</h2>
-                                <div class="form-group">
-                                    <label for="username">用户名</label>
-                                    <input type="text" id="username" required placeholder="请输入用户名">
-                                </div>
-                                <div class="form-group">
-                                    <label for="password">密码</label>
-                                    <input type="password" id="password" required placeholder="请输入密码">
-                                </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%;">立即登录</button>
-                           </form>` 
-                        : `<form id="register-form">
-                                <h2>创建账户</h2>
-                                <div class="form-group">
-                                    <label for="username">用户名</label>
-                                    <input type="text" id="username" required placeholder="设置用户名">
-                                </div>
-                                <div class="form-group">
-                                    <label for="password">密码</label>
-                                    <input type="password" id="password" required placeholder="设置密码">
-                                </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%;">立即注册</button>
-                           </form>`
-                    }
-                </div>
-            </div>`; 
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit');
+            const err = document.getElementById('error-msg');
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
             
-            const form = document.getElementById(isLogin ? 'login-form' : 'register-form');
-            if (form) {
-                form.onsubmit = isLogin ? handleLogin : handleRegister;
+            btn.disabled = true; btn.textContent = '登录中...'; err.style.display = 'none';
+            
+            try {
+                const res = await fetch(`${getApiBase()}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                
+                if (res.ok && data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    window.location.href = 'home.html'; // 登录成功，跳转到分离的内部页面
+                } else {
+                    throw new Error(data.error || '登录失败');
+                }
+            } catch (error) {
+                err.textContent = error.message;
+                err.style.display = 'block';
+                btn.disabled = false; btn.textContent = '进入系统';
             }
-        };
-
-        const renderAdminPage = async () => { if (!auth.isAdmin()) { router.navigate('/'); return; } app.innerHTML = renderNavbar() + `<div class="admin-section"><h2>站点管理 <button class="btn btn-primary" style="font-size:0.85rem;margin-left:auto;" onclick="showSiteModal()">+ 新增站点</button></h2><div class="table-wrapper"><table><thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead><tbody id="sites-table"></tbody></table></div></div><div class="admin-section"><h2>用户管理</h2><div class="table-wrapper"><table><thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead><tbody id="users-table"></tbody></table></div></div><div class="admin-section"><h2>发布公告</h2><form id="global-announcement-form"><div class="form-group"><textarea id="global-announcement" rows="3" required placeholder="输入公告内容..." style="resize:vertical;"></textarea></div><button type="submit" class="btn btn-primary">发布全员公告</button></form></div>`; loadAdminData(); document.getElementById('global-announcement-form').onsubmit = handleSendGlobalAnnouncement; };
-        const loadAdminData = async () => { const sitesTable = document.getElementById('sites-table'); const usersTable = document.getElementById('users-table'); sitesTable.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">加载中...</td></tr>'; usersTable.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">加载中...</td></tr>'; try { const [sites, users] = await Promise.all([apiRequest('/sites'), apiRequest('/users')]); sitesTable.innerHTML = sites.map(s => `<tr><td data-label="名称">${s.name}</td><td data-label="子域名">${s.subdomain}</td><td data-label="类型"><span style="background:#e0f2fe;color:#0284c7;padding:4px 8px;border-radius:6px;font-size:0.85em;font-weight:600;">${s.type}</span></td><td data-label="操作" class="actions"><button class="btn btn-outline" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button><button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button></td></tr>`).join(''); usersTable.innerHTML = users.map(u => `<tr><td data-label="用户名">${u.username}</td><td data-label="角色">${u.role}</td><td data-label="状态"><span style="padding:4px 8px;border-radius:6px;background:${u.status==='active'?'#dcfce7':'#fee2e2'};color:${u.status==='active'?'#15803d':'#b91c1c'};font-size:0.85em;font-weight:600;">${u.status}</span></td><td data-label="操作" class="actions"><button class="btn btn-outline" onclick='showUserPasswordModal(${u.id})'>改密</button><button class="btn ${u.status === 'active' ? 'btn-danger':'btn-primary'}" onclick='handleUserStatusChange(${u.id}, "${u.status==='active'?'banned':'active'}")'>${u.status==='active'?'封禁':'解封'}</button><button class="btn btn-outline" onclick='handleUserRoleChange(${u.id}, "${u.role==='user'?'admin':'user'}")'>${u.role==='user'?'设为管理':'取消'}</button><button class="btn btn-outline" onclick='showUserAnnounceModal(${u.id})'>私信</button><button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button></td></tr>`).join(''); } catch (error) { sitesTable.innerHTML = `<tr><td colspan="4" style="color:red;">${error.message}</td></tr>`; usersTable.innerHTML = `<tr><td colspan="4" style="color:red;">${error.message}</td></tr>`; } };
-        const handleLogin = async (e) => { e.preventDefault(); const username = e.target.username.value, password = e.target.password.value; try { const data = await apiRequest('/login', 'POST', { username, password }); auth.set(data.token, data.user); router.navigate('/'); } catch (error) { alert(`登录失败: ${error.message}`); } };
-        const handleRegister = async (e) => { e.preventDefault(); const username = e.target.username.value, password = e.target.password.value; try { const data = await apiRequest('/register', 'POST', { username, password }); alert(data.message); router.navigate('/login'); } catch (error) { alert(`注册失败: ${error.message}`); } };
-        const handleSaveSite = async () => { try { const id = document.getElementById('site-id').value; const body = { name: document.getElementById('site-name').value, subdomain: document.getElementById('site-subdomain').value, type: document.getElementById('site-type').value, author: document.getElementById('site-author').value, description: document.getElementById('site-description').value }; if (id) await apiRequest(`/sites/${id}`, 'PUT', body); else await apiRequest('/sites', 'POST', body); hideModal(); loadAdminData(); } catch (e) { alert(`保存失败: ${e.message}`); } };
-        const handleDeleteSite = async (id) => { if (confirm('确定要删除这个站点吗？')) try { await apiRequest(`/sites/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); } };
-        const handleDeleteUser = async (id) => { if (confirm('确定要永久删除这个用户吗？此操作不可逆！')) try { await apiRequest(`/users/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); } };
-        const handleUserPasswordChange = async (id) => { const password = document.getElementById('new-pass').value; if(password) try { await apiRequest(`/users/${id}/password`, 'PUT', {password}); hideModal(); alert('密码修改成功'); } catch(e){ alert(`修改失败: ${e.message}`); }};
-        const handleUserStatusChange = async (id, status) => { try { await apiRequest(`/users/${id}/status`, 'PUT', {status}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
-        const handleUserRoleChange = async (id, role) => { try { await apiRequest(`/users/${id}/role`, 'PUT', {role}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
-        const fetchAndRenderAnnouncements = async () => { const bar = document.getElementById('announcement-bar'); if (!bar || !auth.isLoggedIn()) return; try { const announcements = await apiRequest('/announcements'); bar.innerHTML = announcements.length > 0 ? announcements.map(a => `<div style="background:#fffbeb;color:#92400e;padding:1rem 1.5rem;border-radius:12px;margin-bottom:1.5rem;border:1px solid #fcd34d;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 4px rgba(251, 191, 36, 0.1);"><span>${a.content}</span><button onclick="markAnnouncementAsRead(${a.id})" style="background:white;border:1px solid #d97706;color:#d97706;padding:4px 12px;border-radius:6px;cursor:pointer;font-weight:600;transition:all 0.2s;">已知晓</button></div>`).join('') : ''; } catch (e) { console.error(e); } };
-        const markAnnouncementAsRead = async (id) => { try { await apiRequest(`/announcements/${id}/read`, 'PUT'); fetchAndRenderAnnouncements(); } catch (e) { alert(e.message); } };
-        const handleSendGlobalAnnouncement = async (e) => { e.preventDefault(); const content = document.getElementById('global-announcement').value; if(content) try { await apiRequest('/announcements', 'POST', {isGlobal: true, content}); document.getElementById('global-announcement').value=''; alert('全局公告已发布'); } catch(e){ alert(e.message); }};
-        const handleSendPrivateAnnouncement = async (id) => { const content = document.getElementById('private-announce').value; if(content) try { await apiRequest('/announcements', 'POST', {userId: id, content}); hideModal(); alert('私信已发送'); } catch(e){ alert(e.message); }};
-        const showModal = (title, content, footer) => { modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal"><div class="modal-header"><h3>${title}</h3><button onclick="hideModal()" style="border:none;background:transparent;font-size:1.8rem;cursor:pointer;color:#94a3b8;line-height:1;">&times;</button></div><div class="modal-body">${content}</div><div class="modal-footer">${footer}</div></div></div>`; modalContainer.classList.remove('hidden'); };
-        const hideModal = () => modalContainer.classList.add('hidden');
-        const showSiteModal = (site = null) => { const isEdit = site !== null; const title = isEdit ? '编辑站点' : '添加新站点'; const content = `<form id="site-form"><input type="hidden" id="site-id" value="${site?.id || ''}"><div class="form-group"><label>名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div><div class="form-group"><label>子域名</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div><div class="form-group"><label>类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>链接</option></select></div><div class="form-group"><label>作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div><div class="form-group"><label>简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div></form>`; const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`; showModal(title, content, footer); };
-        const showUserPasswordModal = (id) => { const content = `<div class="form-group"><label>新密码</label><input type="password" id="new-pass" required></div>`; const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">确认修改</button>`; showModal('修改用户密码', content, footer); };
-        const showUserAnnounceModal = (id) => { const content = `<div class="form-group"><label>私信内容</label><textarea id="private-announce" rows="3" required></textarea></div>`; const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`; showModal('发送私信', content, footer); };
-        const router = { routes: { '/': renderHomePage, '/login': () => renderAuthPage('login'), '/register': () => renderAuthPage('register'), '/admin': renderAdminPage, '/logout': () => { auth.clear(); router.navigate('/login'); } }, navigate(path) { window.location.hash = path; }, handler() { const path = (window.location.hash.replace('#', '') || '/').split('?')[0]; (this.routes[path] || this.routes['/'])(); } };
-        const main = () => { auth.init(); window.addEventListener('hashchange', () => router.handler()); router.handler(); };
-        main();
+        });
     </script>
 </body>
 </html>
