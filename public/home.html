@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>我的私人导航站 - 主页</title>
+    <title>我的私人导航站</title>
     <style>
+        /* =========================================
+           原版 CSS 样式 (完整保留)
+           ========================================= */
         :root {
             --primary-color: #4f46e5;
             --primary-hover: #4338ca;
@@ -15,163 +18,245 @@
             --border-color: #e2e8f0;
             --danger-color: #ef4444;
             --success-color: #10b981;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             --radius: 16px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
-        #app { max-width: 1200px; margin: 0 auto; padding: 24px; min-height: 100vh; }
-        .hidden { display: none !important; }
 
-        /* --- 导航栏 --- */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        #app { max-width: 1200px; margin: 0 auto; padding: 24px; min-height: 100vh; }
+
+        /* Navbar */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
-            padding: 1rem 2rem; border-radius: var(--radius);
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); margin-bottom: 2rem;
-            position: sticky; top: 20px; z-index: 100; border: 1px solid rgba(255,255,255,0.6);
+            background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px); padding: 1rem 2rem;
+            border-radius: var(--radius); box-shadow: var(--shadow-sm);
+            margin-bottom: 2.5rem; position: sticky; top: 20px; z-index: 100;
+            border: 1px solid rgba(255,255,255,0.6); transition: box-shadow 0.3s ease;
         }
-        .navbar .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary-color); text-decoration: none; }
-        .nav-user-info { display: flex; gap: 1rem; align-items: center; }
-        .user-badge { background: #eef2ff; color: var(--primary-color); padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+        .navbar:hover { box-shadow: var(--shadow-md); }
+        .navbar .logo {
+            font-size: 2rem; font-weight: 800; text-decoration: none;
+            background: linear-gradient(135deg, var(--primary-color), #818cf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .navbar .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .navbar .nav-links a, .navbar .nav-links button.nav-btn {
+            text-decoration: none; color: var(--text-secondary); font-weight: 600;
+            font-size: 0.95rem; padding: 0.5rem 1rem; border-radius: 10px;
+            transition: all 0.2s ease; background: transparent; border: none; cursor: pointer;
+            font-family: inherit;
+        }
+        .navbar .nav-links a:hover, .navbar .nav-links button.nav-btn:hover {
+            color: var(--primary-color); background-color: #e0e7ff;
+        }
+        .navbar .nav-links a.active { color: var(--primary-color); background-color: #eef2ff; }
 
-        /* --- 按钮 --- */
-        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-primary { background: var(--primary-color); color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn-danger { background: #fee2e2; color: var(--danger-color); }
+        /* Buttons */
+        .btn {
+            padding: 0.7rem 1.4rem; border-radius: 10px; border: none; cursor: pointer;
+            font-weight: 600; text-decoration: none; display: inline-flex; align-items: center;
+            justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem; letter-spacing: 0.01em;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); 
+            color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+        .btn-primary:hover { 
+            box-shadow: 0 6px 10px -1px rgba(79, 70, 229, 0.3); transform: translateY(-1px);
+        }
+        .btn-danger { background-color: #fee2e2; color: var(--danger-color); border: 1px solid transparent; }
+        .btn-danger:hover { background-color: #fecaca; border-color: #fca5a5; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+        .btn-outline:hover { border-color: var(--text-secondary); background: #f8fafc; }
 
-        /* --- 区块与卡片 --- */
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .section-header h2 { margin: 0; font-size: 1.5rem; color: var(--text-main); font-weight: 800; }
-        
-        .content-section, .admin-section { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); margin-bottom: 2rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1); border: 1px solid var(--border-color); }
-        
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .novel-card { background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.5rem; transition: all 0.3s; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .novel-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #c7d2fe; }
-        .novel-card h3 { margin: 0 0 1rem 0; font-size: 1.3rem; font-weight: 700; }
-        .novel-card p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1; }
-        .novel-card .btn { width: 100%; margin-top: auto; }
-
-        /* --- 表格 --- */
-        .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-        th { background: #f8fafc; padding: 1rem; text-align: left; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
-        td { padding: 1rem; border-top: 1px solid var(--border-color); background: #fff; }
-        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.85em; font-weight: 600; }
-        .status-active { background: #dcfce7; color: #15803d; }
-        .status-banned { background: #fee2e2; color: #b91c1c; }
-
-        /* --- 弹窗 --- */
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
-        .modal { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: popIn 0.3s ease; }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal h3 { margin-top: 0; margin-bottom: 1.5rem; font-size: 1.4rem; }
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border-color); border-radius: 10px; font-size: 1rem; outline: none; transition: border-color 0.2s; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-color); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
-
-        /* --- 移动端 --- */
-        @media (max-width: 768px) {
-            #app { padding: 10px; }
-            .navbar { padding: 1rem; flex-direction: column; gap: 1rem; align-items: stretch; text-align: center; }
-            .nav-user-info { justify-content: center; }
-            .section-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead { display: none; }
-            tr { margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-            td { padding: 0.5rem 0; border: none; display: flex; justify-content: space-between; align-items: center; }
-            td::before { content: attr(data-label); font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
-            .actions { margin-top: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1rem; justify-content: flex-end; }
+        h2 {
+            margin-top: 0; font-size: 1.75rem; color: var(--text-main); margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 0.75rem; font-weight: 800;
         }
+        h2::before {
+            content: ''; display: block; width: 6px; height: 28px;
+            background: linear-gradient(to bottom, var(--primary-color), #a5b4fc);
+            border-radius: 3px;
+        }
+
+        /* Sections */
+        .content-section, .admin-section {
+            background-color: var(--card-bg); padding: 2.5rem; border-radius: var(--radius);
+            margin-bottom: 2.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
+            transition: box-shadow 0.3s ease; width: 100%;
+        }
+        .content-section:hover, .admin-section:hover { box-shadow: var(--shadow-md); }
+
+        /* Novel Cards */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .novel-card {
+            background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius);
+            padding: 1.75rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        .novel-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), #c7d2fe);
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .novel-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: #c7d2fe; }
+        .novel-card:hover::before { opacity: 1; }
+        .novel-card h3 { margin: 0 0 1.25rem 0; font-size: 1.35rem; color: var(--text-main); font-weight: 700; line-height: 1.3; }
+        
+        .novel-card details {
+            margin-bottom: 1rem; border-radius: 10px; background-color: #f8fafc;
+            border: 1px solid transparent; transition: all 0.3s ease; overflow: hidden;
+        }
+        .novel-card details[open] {
+            border-color: #e2e8f0; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        .novel-card summary {
+            padding: 0.75rem 1rem; cursor: pointer; font-weight: 600; color: var(--text-secondary);
+            font-size: 0.9rem; list-style: none; display: flex; justify-content: space-between;
+            align-items: center; transition: color 0.2s; outline: none;
+        }
+        .novel-card summary:hover { color: var(--primary-color); }
+        .novel-card summary::-webkit-details-marker { display: none; }
+        .novel-card summary::after { 
+            content: '›'; font-size: 1.4em; font-weight: 400; color: #94a3b8; 
+            transition: transform 0.3s ease; transform-origin: center;
+        }
+        .novel-card details[open] summary::after { transform: rotate(90deg); color: var(--primary-color); }
+        .novel-card .details-content {
+            padding: 0 1rem 1rem 1rem; font-size: 0.95rem; color: var(--text-main); line-height: 1.7;
+            animation: fadeInContent 0.4s ease forwards;
+        }
+        @keyframes fadeInContent { from { opacity: 0; } to { opacity: 1; } }
+        .novel-card .btn { margin-top: auto; width: 100%; }
+
+        /* Tables */
+        .table-wrapper { 
+            overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); 
+            box-shadow: var(--shadow-sm); width: 100%;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th { 
+            background-color: #f1f5f9; font-weight: 700; color: var(--text-secondary); 
+            text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; 
+            padding: 1.2rem 1.5rem; text-align: left; 
+        }
+        td { 
+            padding: 1.2rem 1.5rem; border-top: 1px solid var(--border-color); 
+            color: var(--text-main); background: #fff; transition: background 0.2s;
+        }
+        tr:hover td { background-color: #f8fafc; }
+        .actions button { margin-right: 0.5rem; font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+
+        /* Forms */
+        .form-group { margin-bottom: 1.75rem; }
+        label { display: block; margin-bottom: 0.6rem; font-weight: 600; color: var(--text-main); font-size: 0.9rem; }
+        input, select, textarea {
+            width: 100%; padding: 0.9rem 1.1rem; border: 2px solid var(--border-color);
+            border-radius: 12px; box-sizing: border-box; font-size: 1rem;
+            transition: all 0.2s ease; outline: none; background: #f8fafc;
+        }
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--primary-color); background: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Modals */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.5); backdrop-filter: blur(8px);
+            z-index: 1040; display: flex; align-items: center; justify-content: center;
+            opacity: 0; animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .modal {
+            background: var(--card-bg); padding: 2.5rem; border-radius: 24px;
+            width: 90%; max-width: 520px; box-shadow: var(--shadow-lg);
+            transform: scale(0.9); opacity: 0; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            max-height: 90vh; overflow-y: auto; 
+        }
+        @keyframes popIn { to { transform: scale(1); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .modal-header h3 { margin: 0; font-size: 1.5rem; font-weight: 800; }
+        .modal-footer { margin-top: 2.5rem; text-align: right; display: flex; justify-content: flex-end; gap: 1rem; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            #app { padding: 0; }
+            .navbar { 
+                position: static; margin: 0; border-radius: 0; border: none; border-bottom: 1px solid var(--border-color);
+                flex-direction: column; align-items: stretch; gap: 0.5rem; padding: 1rem 1.5rem; 
+                background-color: rgba(255, 255, 255, 0.98);
+            }
+            .navbar .nav-links { 
+                justify-content: space-between; width: 100%; gap: 0.5rem; flex-wrap: nowrap;
+                overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; 
+            }
+            .navbar .nav-links::-webkit-scrollbar { display: none; }
+            .navbar .nav-links a, .navbar .nav-links button.nav-btn { 
+                padding: 0.7rem 1.2rem; background: #f1f5f9; border-radius: 12px; font-size: 0.95rem; 
+                white-space: nowrap; flex-shrink: 0; flex-grow: 1; text-align: center;
+            }
+            .navbar .nav-links a.active { background: #eef2ff; }
+            .navbar .logo { font-size: 1.8rem; text-align: left; width: 100%; }
+            .content-section, .admin-section { margin: 1rem; padding: 1.5rem; width: auto; border-radius: 16px; }
+            .card-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .table-wrapper { border: none; overflow: visible; background: transparent; box-shadow: none; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { 
+                margin-bottom: 1.2rem; border: 1px solid var(--border-color); border-radius: 16px; 
+                background: #fff; padding: 1.25rem; box-shadow: var(--shadow-sm);
+            }
+            td { 
+                border: none; position: relative; padding-left: 0; text-align: right; 
+                padding-top: 0.5rem; padding-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; 
+            }
+            td:before { content: attr(data-label); font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
+            .actions { 
+                margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid #f1f5f9; 
+                display: flex; justify-content: flex-end; gap: 0.8rem; 
+            }
+            .actions button { margin: 0; flex: 1; }
+        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <!-- 1. 权限门禁：未登录直接踢回 -->
+    <!-- 权限门禁：必须放在最前面 -->
     <script>
-        const token = localStorage.getItem('token');
-        if (!token) { window.location.href = 'index.html'; }
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        // 如果没有 Token，直接踢回纯登录页 index.html
+        if (!localStorage.getItem('token')) {
+            window.location.replace('index.html');
+        }
     </script>
 
-    <div id="app">
-        <!-- 导航栏 -->
-        <nav class="navbar">
-            <a href="#" class="logo">🌌 私人导航站</a>
-            <div class="nav-user-info">
-                <span class="user-badge" id="user-display">加载中...</span>
-                <!-- 所有用户都可以看到的修改密码按钮 -->
-                <button class="btn btn-outline btn-sm" onclick="showChangePasswordModal()">修改密码</button>
-                <button class="btn btn-danger btn-sm" onclick="logout()">退出登录</button>
-            </div>
-        </nav>
-
-        <!-- 公告栏 -->
-        <div id="announcement-bar"></div>
-
-        <!-- 2. 核心功能区 (原主页面内容) -->
-        <div class="content-section">
-            <div class="section-header">
-                <h2>📚 我的书库</h2>
-            </div>
-            <div id="novels-grid" class="card-grid">
-                <p>正在加载内容...</p>
-            </div>
-        </div>
-
-        <!-- 3. 管理员后台 (仅管理员可见) -->
-        <div id="admin-area" class="hidden">
-            <!-- 站点管理 -->
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2>🌐 站点管理</h2>
-                    <button class="btn btn-primary" onclick="showSiteModal()">+ 新增站点</button>
-                </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead>
-                        <tbody id="sites-table"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 用户管理 (在此处添加注册功能) -->
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2>👥 用户管理</h2>
-                    <!-- 【新功能】管理员注册用户按钮 -->
-                    <button class="btn btn-primary" onclick="showCreateUserModal()">+ 注册新用户</button>
-                </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
-                        <tbody id="users-table"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 公告发布 -->
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2>📢 发布全员公告</h2>
-                </div>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <textarea id="global-announce-content" class="form-group" style="flex: 1; padding: 1rem; border: 2px solid var(--border-color); border-radius: 12px; resize: vertical;" rows="3" placeholder="在此输入公告内容..."></textarea>
-                    <button class="btn btn-primary" style="height: fit-content;" onclick="sendGlobalAnnouncement()">发布</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 弹窗容器 -->
-    <div id="modal-container" class="hidden modal-backdrop"></div>
+    <div id="app"></div>
+    <div id="modal-container" class="hidden"></div>
 
     <script>
+        const app = document.getElementById('app');
+        const modalContainer = document.getElementById('modal-container');
+        
+        // API Config
         const getApiBase = () => {
             const host = window.location.hostname;
             if (host.includes('novel-pro.505616.xyz')) return 'https://novel-pro.505616.xyz/api';
@@ -179,263 +264,297 @@
             return '/api';
         };
         const apiBase = getApiBase();
-
-        // 初始化显示
-        document.getElementById('user-display').textContent = `${user.username} (${user.role === 'admin' ? '管理员' : '用户'})`;
-        if (user.role === 'admin') {
-            document.getElementById('admin-area').classList.remove('hidden');
-        }
-
-        // --- API 封装 ---
-        async function api(endpoint, method = 'GET', body = null) {
-            const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
-            const opts = { method, headers };
-            if (body) opts.body = JSON.stringify(body);
-            
-            try {
-                const res = await fetch(`${apiBase}${endpoint}`, opts);
-                if (res.status === 401) { logout(); return; }
-                if (!res.ok) {
-                    const err = await res.json().catch(()=>{});
-                    throw new Error(err.error || `请求失败 (${res.status})`);
-                }
-                return res.status === 204 ? null : res.json();
-            } catch (e) {
-                alert(e.message);
-                throw e;
+        
+        // Auth Logic
+        const auth = {
+            _token: null, _user: null,
+            init() { 
+                this._token = localStorage.getItem('token'); 
+                this._user = JSON.parse(localStorage.getItem('user')); 
+            },
+            get() { return { token: this._token, user: this._user }; },
+            isAdmin() { return this._user && this._user.role === 'admin'; },
+            logout() { 
+                localStorage.removeItem('token'); 
+                localStorage.removeItem('user'); 
+                window.location.href = 'index.html'; // 登出跳回登录页
             }
-        }
+        };
 
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }
-
-        // --- 核心业务逻辑 ---
-
-        // 1. 加载书库
-        async function loadNovels() {
-            try {
-                const sites = await api('/sites?type=novel');
-                const grid = document.getElementById('novels-grid');
-                
-                // 动态域名逻辑
-                const host = window.location.hostname;
-                let novelDomain = '20100505.xyz';
-                if (host.includes('505616.xyz')) novelDomain = '505616.xyz';
-                else if (host.includes('zzsp.me')) novelDomain = 'zzsp.me';
-
-                if (!sites || sites.length === 0) {
-                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 2rem;">暂无书籍，请联系管理员添加。</div>';
-                    return;
-                }
-
-                grid.innerHTML = sites.map(s => `
-                    <div class="novel-card">
-                        <h3>${s.name}</h3>
-                        <p>${s.description || '暂无简介'}</p>
-                        <a href="https://${s.subdomain}.${novelDomain}" target="_blank" class="btn btn-primary">开始阅读</a>
-                    </div>
-                `).join('');
-            } catch (e) { console.error(e); }
-        }
-
-        // 2. 加载管理员数据
-        async function loadAdminData() {
-            if (user.role !== 'admin') return;
+        const apiRequest = async (endpoint, method = 'GET', body = null) => { 
+            const { token } = auth.get(); 
+            // 如果 token 没了，踢回登录页
+            if (!token) { window.location.href = 'index.html'; throw new Error('Auth needed'); } 
             
-            // 站点列表
-            const sites = await api('/sites');
-            document.getElementById('sites-table').innerHTML = sites.map(s => `
-                <tr>
-                    <td data-label="名称">${s.name}</td>
-                    <td data-label="子域名">${s.subdomain}</td>
-                    <td data-label="类型">${s.type === 'novel' ? '📚 小说' : '🔗 链接'}</td>
-                    <td data-label="操作" class="actions">
-                        <button class="btn btn-outline btn-sm" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteSite(${s.id})">删除</button>
-                    </td>
-                </tr>
-            `).join('');
+            const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }; 
+            const options = { method, headers }; 
+            if (body) options.body = JSON.stringify(body); 
+            
+            const response = await fetch(`${apiBase}${endpoint}`, options); 
+            
+            if (response.status === 401) { auth.logout(); return; } // Token 过期处理
+            
+            if (!response.ok) { 
+                const errorData = await response.json().catch(() => ({})); 
+                throw new Error(errorData.error || `HTTP ${response.status}`); 
+            } 
+            return response.status === 204 ? null : response.json(); 
+        };
 
-            // 用户列表
-            const users = await api('/users');
-            document.getElementById('users-table').innerHTML = users.map(u => `
-                <tr>
-                    <td data-label="用户名">${u.username}</td>
-                    <td data-label="角色">${u.role === 'admin' ? '🛡️ 管理员' : '👤 用户'}</td>
-                    <td data-label="状态"><span class="status-badge ${u.status === 'active' ? 'status-active' : 'status-banned'}">${u.status === 'active' ? '正常' : '封禁'}</span></td>
-                    <td data-label="操作" class="actions">
-                        <button class="btn btn-outline btn-sm" onclick="showChangePasswordModal(${u.id})">改密</button>
-                        ${u.role !== 'admin' ? `<button class="btn ${u.status==='active'?'btn-danger':'btn-primary'} btn-sm" onclick="toggleUserStatus(${u.id}, '${u.status}')">${u.status==='active'?'封禁':'解封'}</button>` : ''}
-                        ${u.id !== user.id ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">删除</button>` : '<span style="color:#ccc;font-size:0.8rem;">(你自己)</span>'}
-                    </td>
-                </tr>
-            `).join('');
-        }
+        // 动态域名生成
+        const getNovelDomain = () => {
+             const host = window.location.hostname;
+             if (host.includes('novel-pro.505616.xyz')) return '505616.xyz';
+             if (host.includes('novel-pro.zzsp.me')) return 'zzsp.me';
+             return '20100505.xyz';
+        };
 
-        // 3. 公告系统
-        async function loadAnnouncements() {
-            const list = await api('/announcements');
-            const bar = document.getElementById('announcement-bar');
-            if (list && list.length > 0) {
-                bar.innerHTML = list.map(a => `
-                    <div style="background:#fffbeb; color:#92400e; padding:1rem; border-radius:12px; margin-bottom:1.5rem; border:1px solid #fcd34d; display:flex; justify-content:space-between; align-items:center;">
-                        <span>🔔 ${a.content}</span>
-                        <button class="btn btn-sm" style="background:white; border:1px solid #d97706; color:#d97706;" onclick="readAnnouncement(${a.id})">收到</button>
-                    </div>
-                `).join('');
+        // --- Renderers ---
+
+        const renderNavbar = () => { 
+            const { user } = auth.get(); 
+            const currentPath = window.location.hash || '#/'; 
+            
+            let linksHtml = `<a href="#/" class="${currentPath === '#/' ? 'active' : ''}">书库</a>`;
+            
+            if (auth.isAdmin()) {
+                linksHtml += `<a href="#/admin" class="${currentPath === '#/admin' ? 'active' : ''}">管理</a>`;
             } else {
-                bar.innerHTML = '';
+                // 普通用户新增：修改密码按钮
+                linksHtml += `<button class="nav-btn" onclick="showUserPasswordModal(${user.id})">修改密码</button>`;
             }
-        }
+            
+            linksHtml += `<button class="nav-btn" onclick="auth.logout()">登出 (${user.username})</button>`;
 
-        // --- 交互逻辑 (CRUD) ---
+            return `
+            <div class="navbar">
+                <a href="#/" class="logo">我的私人导航站</a>
+                <div class="nav-links">${linksHtml}</div>
+            </div>`; 
+        };
 
-        // 发送全员公告
-        async function sendGlobalAnnouncement() {
-            const content = document.getElementById('global-announce-content').value;
-            if(!content) return alert('请输入内容');
-            await api('/announcements', 'POST', { isGlobal: true, content });
-            document.getElementById('global-announce-content').value = '';
-            alert('全员公告已发布');
-        }
+        const renderHomePage = async () => { 
+            app.innerHTML = renderNavbar() + `
+                <div id="announcement-bar"></div>
+                <div class="content-section">
+                    <h2>我的书库</h2>
+                    <div id="novels-grid" class="card-grid"></div>
+                </div>`; 
+            
+            fetchAndRenderAnnouncements(); 
+            try { 
+                const novels = await apiRequest('/sites?type=novel'); 
+                const novelDomain = getNovelDomain();
+                document.getElementById('novels-grid').innerHTML = novels.length ? novels.map(n => `
+                    <div class="novel-card">
+                        <h3>${n.name}</h3>
+                        ${n.author ? `<details><summary>作者</summary><div class="details-content">${n.author}</div></details>` : ''}
+                        ${n.description ? `<details><summary>简介</summary><div class="details-content">${n.description}</div></details>` : ''}
+                        <a href="https://${n.subdomain}.${novelDomain}" class="btn btn-primary" target="_blank">开始阅读</a>
+                    </div>`).join('') : '<p style="text-align:center;color:#999;width:100%;grid-column:1/-1;padding:2rem;">暂无书籍。</p>'; 
+            } catch (error) { 
+                document.getElementById('novels-grid').innerHTML = `<p style="color:red;text-align:center;">加载失败: ${error.message}</p>`; 
+            } 
+        };
 
-        async function readAnnouncement(id) {
-            await api(`/announcements/${id}/read`, 'PUT');
-            loadAnnouncements();
-        }
-
-        async function deleteSite(id) {
-            if(!confirm('确定删除此站点吗？')) return;
-            await api(`/sites/${id}`, 'DELETE');
-            loadAdminData();
-        }
-
-        async function deleteUser(id) {
-            if(!confirm('确定删除此用户吗？数据不可恢复！')) return;
-            await api(`/users/${id}`, 'DELETE');
-            loadAdminData();
-        }
-
-        async function toggleUserStatus(id, currentStatus) {
-            const newStatus = currentStatus === 'active' ? 'banned' : 'active';
-            await api(`/users/${id}/status`, 'PUT', { status: newStatus });
-            loadAdminData();
-        }
-
-        // --- 模态框管理 ---
-        const modalContainer = document.getElementById('modal-container');
-        function showModal(title, contentHTML, footerHTML) {
-            modalContainer.innerHTML = `
-                <div class="modal">
-                    <h3>${title}</h3>
-                    <div class="modal-body">${contentHTML}</div>
-                    <div class="modal-footer">
-                        <button class="btn btn-outline" onclick="closeModal()">取消</button>
-                        ${footerHTML}
+        const renderAdminPage = async () => { 
+            if (!auth.isAdmin()) { router.navigate('/'); return; } 
+            
+            app.innerHTML = renderNavbar() + `
+                <div class="admin-section">
+                    <h2>站点管理 
+                        <button class="btn btn-primary" style="font-size:0.85rem;" onclick="showSiteModal()">+ 新增站点</button>
+                    </h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>名称</th><th>子域名</th><th>类型</th><th>操作</th></tr></thead>
+                            <tbody id="sites-table"></tbody>
+                        </table>
                     </div>
                 </div>
+                
+                <div class="admin-section">
+                    <h2>用户管理
+                        <!-- 管理员特有：注册新用户按钮 -->
+                        <button class="btn btn-primary" style="font-size:0.85rem;" onclick="showCreateUserModal()">+ 注册用户</button>
+                    </h2>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>用户名</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
+                            <tbody id="users-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="admin-section">
+                    <h2>发布公告</h2>
+                    <form id="global-announcement-form">
+                        <div class="form-group">
+                            <textarea id="global-announcement" rows="3" required placeholder="输入公告内容..." style="resize:vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">发布全员公告</button>
+                    </form>
+                </div>`; 
+            
+            loadAdminData(); 
+            document.getElementById('global-announcement-form').onsubmit = handleSendGlobalAnnouncement; 
+        };
+
+        const loadAdminData = async () => { 
+            const sitesTable = document.getElementById('sites-table'); 
+            const usersTable = document.getElementById('users-table'); 
+            sitesTable.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">加载中...</td></tr>'; 
+            usersTable.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">加载中...</td></tr>'; 
+            
+            try { 
+                const [sites, users] = await Promise.all([apiRequest('/sites'), apiRequest('/users')]); 
+                
+                sitesTable.innerHTML = sites.map(s => `
+                    <tr>
+                        <td data-label="名称">${s.name}</td>
+                        <td data-label="子域名">${s.subdomain}</td>
+                        <td data-label="类型"><span style="background:#e0f2fe;color:#0284c7;padding:4px 8px;border-radius:6px;font-size:0.85em;font-weight:600;">${s.type}</span></td>
+                        <td data-label="操作" class="actions">
+                            <button class="btn btn-outline" onclick='showSiteModal(${JSON.stringify(s)})'>编辑</button>
+                            <button class="btn btn-danger" onclick="handleDeleteSite(${s.id})">删除</button>
+                        </td>
+                    </tr>`).join(''); 
+                
+                usersTable.innerHTML = users.map(u => `
+                    <tr>
+                        <td data-label="用户名">${u.username}</td>
+                        <td data-label="角色">${u.role}</td>
+                        <td data-label="状态"><span style="padding:4px 8px;border-radius:6px;background:${u.status==='active'?'#dcfce7':'#fee2e2'};color:${u.status==='active'?'#15803d':'#b91c1c'};font-size:0.85em;font-weight:600;">${u.status}</span></td>
+                        <td data-label="操作" class="actions">
+                            <button class="btn btn-outline" onclick='showUserPasswordModal(${u.id})'>改密</button>
+                            <button class="btn ${u.status === 'active' ? 'btn-danger':'btn-primary'}" onclick='handleUserStatusChange(${u.id}, "${u.status==='active'?'banned':'active'}")'>${u.status==='active'?'封禁':'解封'}</button>
+                            <button class="btn btn-outline" onclick='handleUserRoleChange(${u.id}, "${u.role==='user'?'admin':'user'}")'>${u.role==='user'?'设为管理':'取消'}</button>
+                            <button class="btn btn-outline" onclick='showUserAnnounceModal(${u.id})'>私信</button>
+                            <button class="btn btn-danger" onclick="handleDeleteUser(${u.id})">删除</button>
+                        </td>
+                    </tr>`).join(''); 
+            } catch (error) { 
+                sitesTable.innerHTML = `<tr><td colspan="4" style="color:red;">${error.message}</td></tr>`; 
+                usersTable.innerHTML = `<tr><td colspan="4" style="color:red;">${error.message}</td></tr>`; 
+            } 
+        };
+
+        // --- Handlers ---
+
+        const handleSaveSite = async () => { 
+            try { 
+                const id = document.getElementById('site-id').value; 
+                const body = { 
+                    name: document.getElementById('site-name').value, 
+                    subdomain: document.getElementById('site-subdomain').value, 
+                    type: document.getElementById('site-type').value, 
+                    author: document.getElementById('site-author').value, 
+                    description: document.getElementById('site-description').value 
+                }; 
+                if (id) await apiRequest(`/sites/${id}`, 'PUT', body); 
+                else await apiRequest('/sites', 'POST', body); 
+                hideModal(); loadAdminData(); 
+            } catch (e) { alert(`保存失败: ${e.message}`); } 
+        };
+
+        const handleDeleteSite = async (id) => { if (confirm('确定要删除这个站点吗？')) try { await apiRequest(`/sites/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); } };
+        
+        const handleDeleteUser = async (id) => { if (confirm('确定要永久删除这个用户吗？此操作不可逆！')) try { await apiRequest(`/users/${id}`, 'DELETE'); loadAdminData(); } catch (e) { alert(`删除失败: ${e.message}`); } };
+        
+        const handleUserPasswordChange = async (id) => { 
+            const password = document.getElementById('new-pass').value; 
+            if(password) try { 
+                await apiRequest(`/users/${id}/password`, 'PUT', {password}); 
+                hideModal(); 
+                alert('密码修改成功'); 
+            } catch(e){ alert(`修改失败: ${e.message}`); }
+        };
+        
+        const handleUserStatusChange = async (id, status) => { try { await apiRequest(`/users/${id}/status`, 'PUT', {status}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
+        const handleUserRoleChange = async (id, role) => { try { await apiRequest(`/users/${id}/role`, 'PUT', {role}); loadAdminData(); } catch(e){ alert(`操作失败: ${e.message}`); }};
+        
+        const fetchAndRenderAnnouncements = async () => { 
+            const bar = document.getElementById('announcement-bar'); 
+            if (!bar) return; 
+            try { 
+                const announcements = await apiRequest('/announcements'); 
+                bar.innerHTML = announcements.length > 0 ? announcements.map(a => `<div style="background:#fffbeb;color:#92400e;padding:1rem 1.5rem;border-radius:12px;margin-bottom:1.5rem;border:1px solid #fcd34d;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 4px rgba(251, 191, 36, 0.1);"><span>${a.content}</span><button onclick="markAnnouncementAsRead(${a.id})" style="background:white;border:1px solid #d97706;color:#d97706;padding:4px 12px;border-radius:6px;cursor:pointer;font-weight:600;transition:all 0.2s;">已知晓</button></div>`).join('') : ''; 
+            } catch (e) { console.error(e); } 
+        };
+        const markAnnouncementAsRead = async (id) => { try { await apiRequest(`/announcements/${id}/read`, 'PUT'); fetchAndRenderAnnouncements(); } catch (e) { alert(e.message); } };
+        
+        const handleSendGlobalAnnouncement = async (e) => { e.preventDefault(); const content = document.getElementById('global-announcement').value; if(content) try { await apiRequest('/announcements', 'POST', {isGlobal: true, content}); document.getElementById('global-announcement').value=''; alert('全局公告已发布'); } catch(e){ alert(e.message); }};
+        const handleSendPrivateAnnouncement = async (id) => { const content = document.getElementById('private-announce').value; if(content) try { await apiRequest('/announcements', 'POST', {userId: id, content}); hideModal(); alert('私信已发送'); } catch(e){ alert(e.message); }};
+
+        // --- Create User (Admin Only) ---
+        const handleCreateUser = async () => {
+            const u = document.getElementById('create-username').value;
+            const p = document.getElementById('create-password').value;
+            if (u && p) {
+                try {
+                    await apiRequest('/users', 'POST', { username: u, password: p, role: 'user' });
+                    hideModal();
+                    loadAdminData();
+                    alert('用户创建成功');
+                } catch(e) { alert(e.message); }
+            } else {
+                alert('请填写完整');
+            }
+        };
+
+        // --- Modals ---
+        const showModal = (title, content, footer) => { modalContainer.innerHTML = `<div class="modal-backdrop"><div class="modal"><div class="modal-header"><h3>${title}</h3><button onclick="hideModal()" style="border:none;background:transparent;font-size:1.8rem;cursor:pointer;color:#94a3b8;line-height:1;">&times;</button></div><div class="modal-body">${content}</div><div class="modal-footer">${footer}</div></div></div>`; modalContainer.classList.remove('hidden'); };
+        const hideModal = () => modalContainer.classList.add('hidden');
+        
+        const showSiteModal = (site = null) => { 
+            const isEdit = site !== null; 
+            const title = isEdit ? '编辑站点' : '添加新站点'; 
+            const content = `<form id="site-form"><input type="hidden" id="site-id" value="${site?.id || ''}"><div class="form-group"><label>名称</label><input type="text" id="site-name" value="${site?.name || ''}" required></div><div class="form-group"><label>子域名</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}" required></div><div class="form-group"><label>类型</label><select id="site-type"><option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option><option value="navlink" ${site?.type === 'navlink' ? 'selected' : ''}>链接</option></select></div><div class="form-group"><label>作者</label><input type="text" id="site-author" value="${site?.author || ''}"></div><div class="form-group"><label>简介</label><textarea id="site-description" rows="3">${site?.description || ''}</textarea></div></form>`; 
+            const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSaveSite()">保存</button>`; 
+            showModal(title, content, footer); 
+        };
+        
+        const showUserPasswordModal = (id) => { 
+            const content = `<div class="form-group"><label>新密码</label><input type="password" id="new-pass" required></div>`; 
+            const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleUserPasswordChange(${id})">确认修改</button>`; 
+            showModal('修改密码', content, footer); 
+        };
+        
+        const showUserAnnounceModal = (id) => { 
+            const content = `<div class="form-group"><label>私信内容</label><textarea id="private-announce" rows="3" required></textarea></div>`; 
+            const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleSendPrivateAnnouncement(${id})">发送</button>`; 
+            showModal('发送私信', content, footer); 
+        };
+
+        const showCreateUserModal = () => {
+            const content = `
+                <div class="form-group"><label>用户名</label><input type="text" id="create-username" required></div>
+                <div class="form-group"><label>初始密码</label><input type="password" id="create-password" required></div>
             `;
-            modalContainer.classList.remove('hidden');
-        }
-        function closeModal() { modalContainer.classList.add('hidden'); }
+            const footer = `<button class="btn btn-outline" onclick="hideModal()">取消</button><button class="btn btn-primary" onclick="handleCreateUser()">创建</button>`;
+            showModal('注册新用户', content, footer);
+        };
 
-        // 弹窗: 修改密码 (支持管理员改别人，或用户改自己)
-        function showChangePasswordModal(targetUserId = null) {
-            const isSelf = !targetUserId || targetUserId === user.id;
-            const uid = targetUserId || user.id;
-            showModal(
-                isSelf ? '修改我的密码' : '重置用户密码',
-                `<div class="form-group"><label>新密码</label><input type="password" id="new-password" placeholder="请输入新密码"></div>`,
-                `<button class="btn btn-primary" onclick="doChangePassword(${uid})">确认修改</button>`
-            );
-        }
+        // --- Router ---
+        const router = { 
+            routes: { 
+                '/': renderHomePage, 
+                '/admin': renderAdminPage 
+            }, 
+            navigate(path) { window.location.hash = path; }, 
+            handler() { 
+                const path = (window.location.hash.replace('#', '') || '/').split('?')[0]; 
+                (this.routes[path] || this.routes['/'])(); 
+            } 
+        };
 
-        async function doChangePassword(uid) {
-            const pwd = document.getElementById('new-password').value;
-            if(!pwd) return alert('密码不能为空');
-            await api(`/users/${uid}/password`, 'PUT', { password: pwd });
-            alert('密码修改成功');
-            closeModal();
-            if (uid === user.id) logout(); // 如果改的是自己的，强制重新登录
-        }
-
-        // 弹窗: 创建新用户 (管理员功能)
-        function showCreateUserModal() {
-            showModal(
-                '注册新用户',
-                `
-                <div class="form-group"><label>用户名</label><input type="text" id="new-username" placeholder="登录用户名"></div>
-                <div class="form-group"><label>密码</label><input type="password" id="new-user-pwd" placeholder="初始密码"></div>
-                <div class="form-group"><label>角色</label>
-                    <select id="new-user-role">
-                        <option value="user">普通用户</option>
-                        <option value="admin">管理员</option>
-                    </select>
-                </div>
-                `,
-                `<button class="btn btn-primary" onclick="doCreateUser()">创建用户</button>`
-            );
-        }
-
-        async function doCreateUser() {
-            const u = document.getElementById('new-username').value;
-            const p = document.getElementById('new-user-pwd').value;
-            const r = document.getElementById('new-user-role').value;
-            if(!u || !p) return alert('请填写完整信息');
-            
-            await api('/users', 'POST', { username: u, password: p, role: r });
-            alert(`用户 ${u} 创建成功！`);
-            closeModal();
-            loadAdminData();
-        }
-
-        // 弹窗: 编辑/新增站点
-        function showSiteModal(site = null) {
-            const isEdit = !!site;
-            showModal(
-                isEdit ? '编辑站点' : '新增站点',
-                `
-                <input type="hidden" id="site-id" value="${site?.id || ''}">
-                <div class="form-group"><label>显示名称</label><input type="text" id="site-name" value="${site?.name || ''}"></div>
-                <div class="form-group"><label>子域名 (不带后缀)</label><input type="text" id="site-subdomain" value="${site?.subdomain || ''}"></div>
-                <div class="form-group"><label>类型</label>
-                    <select id="site-type">
-                        <option value="novel" ${site?.type === 'novel' ? 'selected' : ''}>小说</option>
-                        <option value="link" ${site?.type === 'link' ? 'selected' : ''}>普通链接</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>描述/简介</label><textarea id="site-desc" rows="2">${site?.description || ''}</textarea></div>
-                `,
-                `<button class="btn btn-primary" onclick="doSaveSite()">保存</button>`
-            );
-        }
-
-        async function doSaveSite() {
-            const id = document.getElementById('site-id').value;
-            const body = {
-                name: document.getElementById('site-name').value,
-                subdomain: document.getElementById('site-subdomain').value,
-                type: document.getElementById('site-type').value,
-                description: document.getElementById('site-desc').value
-            };
-            if(!body.name || !body.subdomain) return alert('名称和子域名必填');
-
-            if (id) await api(`/sites/${id}`, 'PUT', body);
-            else await api('/sites', 'POST', body);
-            
-            closeModal();
-            loadNovels();
-            loadAdminData();
-        }
-
-        // --- 启动 ---
-        loadNovels();
-        loadAnnouncements();
-        loadAdminData();
-
+        // Init
+        const main = () => { 
+            auth.init(); 
+            window.addEventListener('hashchange', () => router.handler()); 
+            router.handler(); 
+        };
+        main();
     </script>
 </body>
 </html>
